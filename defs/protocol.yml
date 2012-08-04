@@ -1,0 +1,130 @@
+# encoding: utf-8
+---
+:mpd:
+  :protocol:
+
+    :general:
+      :separator: "\t"
+      :end: "\n"
+
+    :responses:
+      :success: 
+        :regexp:  !ruby/regexp /OK/
+      :failure: 
+        :regexp:  !ruby/regexp /ACK\s\[\w*\@\d*\]\s\{\w*\}\s.*\Z/
+        :error:
+          :code: !ruby/regexp /\d*/
+          :offset: !ruby/regexp /\d*/
+          :command: !ruby/regexp /\{\w*\}/ # Fix this regexp
+          :message_text: !ruby/regexp /(.*\s)/ # Fix this regexp
+
+    :commands:
+      :querying:
+        - :clear_error:
+          :args: []
+          :response: []
+          # Add response
+        - :current_song:
+          :args:
+          :response:
+          # Add response
+        - :idle:
+          # Add arguments (SUBSYSTEMS)
+          :args:
+            :subsystems: []
+          # Complete response
+          :response:
+            - :database
+            - :update
+        - :status:
+          :args:
+          :response:
+          # Add arguments ()
+          # Add response
+        - :stats:
+          :args:
+          :response:
+          # Add arguments ()
+          # Add response
+
+      :playlist:
+        :current:
+          - :add
+          - :add_id
+          - :clear
+          - :delete
+          - :delete_id
+          - :move
+          - :move_id
+          - :playlist
+          - :playlist_find
+          - :playlist_id
+          - :playlist_info
+          - :playlist_search
+          - :pl_changes
+          - :pl_changes_pos_id
+          - :prio
+          - :prio_id
+          - :shuffle
+          - :swap
+          - :swap_id
+
+        :stored:
+          - :list_playlist
+          - :list_playlist_info
+          - :list_playlists
+          - :load
+          - :playlist_add
+          - :playlist_clear
+          - :playlist_delete
+          - :playlist_move
+          - :rename
+          - :rm
+          - :save
+
+        :database:
+          - :count
+          - :find
+          - :find_add
+          - :list
+          - :list_all
+          - :list_all_info
+          - :ls_info
+          - :search
+          - :search_add
+          - :search_add_pl
+          - :update
+          - :rescan
+
+        :stickers:
+          - :sticker_get
+          - :sticker_set
+          - :sticker_delete
+          - :sticker_list
+          - :sticker_find
+
+        :connection:
+          - :close
+          - :kill
+          - :password
+          - :ping
+
+        :audio_output:
+          - :disable_output
+          - :enable_output
+          - :outputs
+
+        :reflection:
+          - :config
+          - :commands
+          - :not_commands
+          - :tag_types
+          - :url_handlers
+          - :decoders
+
+        :client:
+          - :subscribe
+          - :unsubscribe
+          - :channels
+          - :read_messages
+          - :send_message
