@@ -18,7 +18,7 @@ module MPD
 			commands.each do |cmd|
 				define_method cmd do |arguments = {}|
 					request = Request.new(cmd, arguments)
-					write(request.serialize)
+					write_request(request)
 
 					response = read_response
 					response
@@ -43,6 +43,10 @@ module MPD
 		end
 
 		private
+
+		def write_request(request)
+			write(request.serialize)
+		end
 
 		def read_response
 			raw, done = [], false

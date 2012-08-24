@@ -4,13 +4,14 @@ describe IO do
 
 	let(:io) do
 		Class.new do
-			extend MPD::IO
+			extend MPD::Protocol::IO
 		end
 	end
 
+  let(:mocked_socket) { mock(TCPSocket) }
+
 	before(:each) do
-    @mocked_socket = mock(TCPSocket)
-    TCPSocket.stub!(:new).and_return(@mocked_socket)
+    TCPSocket.stub!(:new).and_return(mocked_socket)
   end
 
 	context 'default methods' do
@@ -34,13 +35,13 @@ describe IO do
     it "should write to a socket" do
     	io.connect('localhost', 6601)
       data = "status\n"
-      @mocked_socket.should_receive(:write).with(data).and_return(data.length)
+      mocked_socket.should_receive(:write).with(data).and_return(data.length)
       io.write(data).should eql(data.length)
     end
 
     it "should read from a socket" do
     	io.connect('localhost', 6601)
-      @mocked_socket.should_receive(:gets).and_return("response\n")
+      mocked_socket.should_receive(:gets).and_return("response\n")
       response = io.read
       response.should eq("response\n")
     end
