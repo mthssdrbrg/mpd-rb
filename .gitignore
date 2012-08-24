@@ -1,0 +1,17 @@
+*.gem
+.bundle
+.config
+
+pkg
+rdoc
+spec/reports
+tmp
+
+# YARD artifacts
+.yardoc
+_yardoc
+doc/
+
+# Ruby management
+.rbenv-version
+.rvmrc
