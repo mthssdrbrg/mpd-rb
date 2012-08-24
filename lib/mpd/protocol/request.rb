@@ -14,11 +14,17 @@ module MPD
     		
 				arguments.each do |key, value|
 					serialized << Protocol::DELIMITER
-					serialized << value.to_s
+					serialized << format_argument(value)
 				end
 
 				serialized << Protocol::SUFFIX
 				serialized
+			end
+
+			private
+
+			def format_argument(arg)
+				arg.to_s.include?(' ') ? "\"#{arg.to_s}\"" : arg.to_s
 			end
 
 		end # Request

@@ -17,16 +17,16 @@ module MPD
 		def self.command(*commands, &block)
 			commands.each do |cmd|
 				define_method cmd do |arguments = {}|
+					# unless authed?
 					request = Request.new(cmd, arguments)
 					write_request(request)
 
 					response = read_response
 					response
+					# end
 				end
 			end
 		end
-
-		command :status, :stats
 
 		def auth
 			authed = false
@@ -41,6 +41,12 @@ module MPD
 
 			authed
 		end
+
+		def authed?
+			@authed
+		end
+
+		command :status, :stats, :clearerror, :currentsong
 
 		private
 
