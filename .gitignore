@@ -12,6 +12,4 @@ tmp
 _yardoc
 doc/
 
-# Ruby management
-.rbenv-version
-.rvmrc
+defs
