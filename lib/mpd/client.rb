@@ -22,8 +22,12 @@ module MPD
     # Controlling playback
     command :next
     command :pause
+    command :play
     command :play_id
     command :previous
+    command :seek
+    command :seek_id
+    command :seek_current, :raw => :seekcur
     command :stop
 
     # The current playlist

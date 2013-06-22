@@ -62,6 +62,22 @@ module MPD
       describe '#play_id' do
         it_behaves_like 'a simple command', :play_id, 'playid 123', 123
       end
+
+      describe '#play' do
+        it_behaves_like 'a simple command', :play, 'play 123', 123
+      end
+
+      describe '#seek' do
+        it_behaves_like 'a simple command', :seek, 'seek 3 120', 3, 120
+      end
+
+      describe '#seekid' do
+        it_behaves_like 'a simple command', :seek_id, 'seekid 13 120', 13, 120
+      end
+
+      describe '#seekcur' do
+        it_behaves_like 'a simple command', :seek_current, 'seekcur 120', 120
+      end
     end
 
     context 'The current playlist' do
