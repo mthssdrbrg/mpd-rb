@@ -12,7 +12,6 @@ module MPD
     end
 
     shared_examples 'a simple command' do |command, expected, *args|
-
       before do
         socket.stub(:puts).with(expected)
         socket.stub(:gets).and_return("OK\n")
@@ -37,177 +36,35 @@ module MPD
       end
     end
 
-    describe '#next' do
-      it_behaves_like 'a simple command', :next, 'next'
-    end
-
-    describe '#previous' do
-      it_behaves_like 'a simple command', :previous, 'previous'
-    end
-
-    describe '#stop' do
-      it_behaves_like 'a simple command', :stop, 'stop'
-    end
-
-    describe '#clear_error' do
-      it_behaves_like 'a simple command', :clear_error, 'clearerror'
-    end
-
-    describe '#pause' do
-      context 'when given true' do
-        it_behaves_like 'a simple command', :pause, 'pause 1', true
+    context 'Controlling playback' do
+      describe '#next' do
+        it_behaves_like 'a simple command', :next, 'next'
       end
 
-      context 'when given false' do
-        it_behaves_like 'a simple command', :pause, 'pause 0', false
-      end
-    end
-
-    describe '#play_id' do
-      it_behaves_like 'a simple command', :play_id, 'playid 123', 123
-    end
-
-    describe '#consume' do
-      context 'when given true' do
-        it_behaves_like 'a simple command', :consume, 'consume 1', true
+      describe '#previous' do
+        it_behaves_like 'a simple command', :previous, 'previous'
       end
 
-      context 'when given false' do
-        it_behaves_like 'a simple command', :consume, 'consume 0', false
+      describe '#stop' do
+        it_behaves_like 'a simple command', :stop, 'stop'
+      end
+
+      describe '#pause' do
+        context 'when given true' do
+          it_behaves_like 'a simple command', :pause, 'pause 1', true
+        end
+
+        context 'when given false' do
+          it_behaves_like 'a simple command', :pause, 'pause 0', false
+        end
+      end
+
+      describe '#play_id' do
+        it_behaves_like 'a simple command', :play_id, 'playid 123', 123
       end
     end
 
-    describe '#status' do
-
-      let :response do
-        [
-          "volume: 100\n",
-          "repeat: 0\n",
-          "random: 0\n",
-          "single: 0\n",
-          "consume: 0\n",
-          "playlist: 3\n",
-          "playlistlength: 1\n",
-          "xfade: 0\n",
-          "mixrampdb: 0.000000\n",
-          "mixrampdelay: nan\n",
-          "state: stop\n",
-          "song: 0\n",
-          "songid: 0\n",
-          "OK\n"
-        ]
-      end
-
-      it 'sends a \'status\' command to protocol socket' do
-        socket.should_receive(:puts).with('status')
-        socket.stub(:gets).and_return(*response)
-        client.status
-      end
-
-      it 'returns a hash with status information' do
-        socket.stub(:puts).with('status')
-        socket.stub(:gets).and_return(*response)
-        client.status.should == {
-          volume: 100,
-          repeat: false,
-          random: false,
-          single: false,
-          consume: false,
-          playlist: 3,
-          playlistlength: 1,
-          xfade: false,
-          mixrampdb: 0.000000,
-          mixrampdelay: Float::NAN,
-          state: :stop,
-          song: 0,
-          songid: 0
-        }
-      end
-    end
-
-    describe '#stats' do
-      let :response do
-        [
-          "artists: 23\n",
-          "albums: 27\n",
-          "songs: 270\n",
-          "uptime: 4560\n",
-          "playtime: 66\n",
-          "db_playtime: 77570\n",
-          "db_update: 1371762307\n",
-          "OK\n"
-        ]
-      end
-
-      before do
-        socket.stub(:puts).with('stats')
-        socket.stub(:gets).and_return(*response)
-      end
-
-      it 'sends a \'stats\' command to socket' do
-        socket.should_receive(:puts).once
-        client.stats
-      end
-
-      it 'returns a hash with statistics' do
-        client.stats.should == {
-          :artists => 23,
-          :albums => 27,
-          :songs => 270,
-          :uptime => 4560,
-          :playtime => 66,
-          :db_playtime => 77570,
-          :db_update => 1371762307
-        }
-      end
-    end
-
-    describe '#current_song' do
-
-      let :response do
-        [
-          "file: 19-gang_starr-next_time-dsp_int.mp3\n",
-          "Last-Modified: 2011-06-22T22:23:56Z\n",
-          "Time: 186\n",
-          "Artist: Gang Starr\n",
-          "Title: Next Time\n",
-          "Album: Moment Of Truth\n",
-          "Track: 19\n",
-          "Date: 1998\n",
-          "Genre: Hip-Hop\n",
-          "Pos: 0\n",
-          "Id: 0\n",
-          "OK\n"
-        ]
-      end
-
-      before do
-        socket.stub(:puts).with('currentsong')
-        socket.stub(:gets).and_return(*response)
-      end
-
-      it 'sends the \'currentsong\' command to socket' do
-        socket.should_receive(:puts).with('currentsong')
-        client.current_song
-      end
-
-      it 'returns a hash with song attributes' do
-        song = client.current_song
-
-        song[:artist].should == 'Gang Starr'
-        song[:title].should == 'Next Time'
-        song[:album].should == 'Moment Of Truth'
-        song[:track].should == 19
-        song[:genre].should == 'Hip-Hop'
-        song[:pos].should == 0
-        song[:id].should == 0
-        song[:time].should == 186
-        song[:file].should == "19-gang_starr-next_time-dsp_int.mp3"
-        song[:last_modified].should == "2011-06-22T22:23:56Z"
-      end
-    end
-
-    context 'commands for the current playlist' do
+    context 'The current playlist' do
       describe '#add' do
         it_behaves_like 'a simple command', :add, 'add random_existing_music_file.mp3', 'random_existing_music_file.mp3'
       end
@@ -400,6 +257,152 @@ module MPD
 
             client.playlist_info(2..4)
           end
+        end
+      end
+    end
+
+    context 'Playback options' do
+      describe '#consume' do
+        context 'when given true' do
+          it_behaves_like 'a simple command', :consume, 'consume 1', true
+        end
+
+        context 'when given false' do
+          it_behaves_like 'a simple command', :consume, 'consume 0', false
+        end
+      end
+    end
+
+    context 'Querying MPD\'s status' do
+      describe '#clear_error' do
+        it_behaves_like 'a simple command', :clear_error, 'clearerror'
+      end
+
+      describe '#status' do
+        let :response do
+          [
+            "volume: 100\n",
+            "repeat: 0\n",
+            "random: 0\n",
+            "single: 0\n",
+            "consume: 0\n",
+            "playlist: 3\n",
+            "playlistlength: 1\n",
+            "xfade: 0\n",
+            "mixrampdb: 0.000000\n",
+            "mixrampdelay: nan\n",
+            "state: stop\n",
+            "song: 0\n",
+            "songid: 0\n",
+            "OK\n"
+          ]
+        end
+
+        it 'sends a \'status\' command to protocol socket' do
+          socket.should_receive(:puts).with('status')
+          socket.stub(:gets).and_return(*response)
+          client.status
+        end
+
+        it 'returns a hash with status information' do
+          socket.stub(:puts).with('status')
+          socket.stub(:gets).and_return(*response)
+          client.status.should == {
+            volume: 100,
+            repeat: false,
+            random: false,
+            single: false,
+            consume: false,
+            playlist: 3,
+            playlistlength: 1,
+            xfade: false,
+            mixrampdb: 0.000000,
+            mixrampdelay: Float::NAN,
+            state: :stop,
+            song: 0,
+            songid: 0
+          }
+        end
+      end
+
+      describe '#stats' do
+        let :response do
+          [
+            "artists: 23\n",
+            "albums: 27\n",
+            "songs: 270\n",
+            "uptime: 4560\n",
+            "playtime: 66\n",
+            "db_playtime: 77570\n",
+            "db_update: 1371762307\n",
+            "OK\n"
+          ]
+        end
+
+        before do
+          socket.stub(:puts).with('stats')
+          socket.stub(:gets).and_return(*response)
+        end
+
+        it 'sends a \'stats\' command to socket' do
+          socket.should_receive(:puts).once
+          client.stats
+        end
+
+        it 'returns a hash with statistics' do
+          client.stats.should == {
+            :artists => 23,
+            :albums => 27,
+            :songs => 270,
+            :uptime => 4560,
+            :playtime => 66,
+            :db_playtime => 77570,
+            :db_update => 1371762307
+          }
+        end
+      end
+
+      describe '#current_song' do
+        let :response do
+          [
+            "file: 19-gang_starr-next_time-dsp_int.mp3\n",
+            "Last-Modified: 2011-06-22T22:23:56Z\n",
+            "Time: 186\n",
+            "Artist: Gang Starr\n",
+            "Title: Next Time\n",
+            "Album: Moment Of Truth\n",
+            "Track: 19\n",
+            "Date: 1998\n",
+            "Genre: Hip-Hop\n",
+            "Pos: 0\n",
+            "Id: 0\n",
+            "OK\n"
+          ]
+        end
+
+        before do
+          socket.stub(:puts).with('currentsong')
+          socket.stub(:gets).and_return(*response)
+        end
+
+        it 'sends the \'currentsong\' command to socket' do
+          socket.should_receive(:puts).with('currentsong')
+          client.current_song
+        end
+
+        it 'returns a hash with song attributes' do
+          song = client.current_song
+
+          song[:artist].should == 'Gang Starr'
+          song[:title].should == 'Next Time'
+          song[:album].should == 'Moment Of Truth'
+          song[:track].should == 19
+          song[:genre].should == 'Hip-Hop'
+          song[:pos].should == 0
+          song[:id].should == 0
+          song[:time].should == 186
+          song[:file].should == "19-gang_starr-next_time-dsp_int.mp3"
+          song[:last_modified].should == "2011-06-22T22:23:56Z"
         end
       end
     end

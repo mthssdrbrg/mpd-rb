@@ -18,25 +18,31 @@ module MPD
       end
     end
 
+    # Controlling playback
     command :next
-    command :previous
     command :pause
-    command :stop
     command :play_id
-    command :consume
-    command :clear_error
+    command :previous
+    command :stop
+
+    # The current playlist
     command :add
+    command :add_id, :response => :hash
     command :clear
     command :delete
     command :delete_id
     command :move
     command :move_id
+    command :playlist_info, :response => :list
 
+    # Playback options
+    command :consume
+
+    # Querying MPD's status
+    command :clear_error
     command :stats, :response => :hash
     command :status, :response => :hash
     command :current_song, :response => :hash
-    command :add_id, :response => :hash
-    command :playlist_info, :response => :list
 
     def initialize(socket)
       @socket = Protocol::ConvenienceSocket.new(socket)
