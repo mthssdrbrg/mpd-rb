@@ -1,10 +1,6 @@
 require 'bundler/setup'
-
-require_relative '../lib/mpd'
-
+require 'mpd'
 
 RSpec.configure do |config|
-
 	config.color_enabled = true
-	
 end
