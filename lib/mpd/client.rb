@@ -56,6 +56,10 @@ module MPD
     command :status, :response => :hash
     command :current_song, :response => :hash
 
+    # The music database
+    command :update, :response => :hash
+    command :rescan, :response => :hash
+
     def initialize(socket)
       @socket = Protocol::ConvenienceSocket.new(socket)
       @response_transposer = Protocol::RubyesqueTransposer.new

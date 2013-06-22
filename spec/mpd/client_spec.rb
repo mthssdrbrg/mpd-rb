@@ -193,7 +193,6 @@ module MPD
       end
 
       describe '#playlist_info' do
-
         let :response do
           [
             [
@@ -473,6 +472,80 @@ module MPD
           song[:time].should == 186
           song[:file].should == "19-gang_starr-next_time-dsp_int.mp3"
           song[:last_modified].should == "2011-06-22T22:23:56Z"
+        end
+      end
+    end
+
+    context 'The music database' do
+      context '#update' do
+        before do
+          socket.stub(:puts)
+          socket.stub(:gets).and_return("updating_db: 4\n", "OK\n")
+        end
+
+        context 'when given an URI' do
+
+          let :uri do
+            'this has spaces/in on it.mp3'
+          end
+
+          it 'sends the \'update\' command with URI' do
+            socket.should_receive(:puts).with("update \"#{uri}\"")
+
+            client.update(uri)
+          end
+
+          it 'returns a hash with the job ID' do
+            client.update(uri).should == {updating_db: 4}
+          end
+        end
+
+        context 'when not given any URI' do
+          it 'sends the \'update\' command' do
+            socket.should_receive(:puts).with('update')
+
+            client.update
+          end
+
+          it 'returns a hash with the job ID' do
+            client.update.should == {updating_db: 4}
+          end
+        end
+      end
+
+      context '#rescan' do
+        before do
+          socket.stub(:puts)
+          socket.stub(:gets).and_return("updating_db: 3\n", "OK\n")
+        end
+
+        context 'when given an URI' do
+
+          let :uri do
+            'this has spaces/in on it.mp3'
+          end
+
+          it 'sends the \'rescan\' command with URI' do
+            socket.should_receive(:puts).with("rescan \"#{uri}\"")
+
+            client.rescan(uri)
+          end
+
+          it 'returns a hash with the job ID' do
+            client.rescan(uri).should == {updating_db: 3}
+          end
+        end
+
+        context 'when not given any URI' do
+          it 'sends the \'rescan\' command' do
+            socket.should_receive(:puts).with('rescan')
+
+            client.rescan
+          end
+
+          it 'returns a hash with the job ID' do
+            client.rescan.should == {updating_db: 3}
+          end
         end
       end
     end
