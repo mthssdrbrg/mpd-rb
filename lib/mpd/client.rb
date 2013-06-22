@@ -8,10 +8,10 @@ module MPD
         case options[:response]
         when :hash
           response = Protocol::HashResponse.new(raw_response)
-          @transposer.transpose(response.parse)
+          @response_transposer.transpose(response.parse)
         when :list
           response = Protocol::ListResponse.new(raw_response)
-          @transposer.transpose(response.parse)
+          @response_transposer.transpose(response.parse)
         else
           Protocol::Response.new(raw_response).parse
         end
@@ -40,7 +40,7 @@ module MPD
 
     def initialize(socket)
       @socket = Protocol::ConvenienceSocket.new(socket)
-      @transposer = Protocol::RubyesqueTransposer.new
+      @response_transposer = Protocol::RubyesqueTransposer.new
       @command_transposer = Protocol::MpdesqueTransposer.new
     end
   end
