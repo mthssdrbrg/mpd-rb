@@ -8,8 +8,10 @@ module MPD
       def transpose(thing)
         if thing.is_a?(Hash)
           transpose_hash(thing)
-        else
+        elsif thing.respond_to?(:map)
           thing.map { |t| transpose_hash(t) }
+        else
+          thing
         end
       end
 

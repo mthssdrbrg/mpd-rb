@@ -9,28 +9,17 @@ module MPD
         case options[:response]
         when :hash
           response = Protocol::HashResponse.new(raw_response)
-          if response.successful?
-            @response_transposer.transpose(response.parse)
-          else
-            error = response.parse
-            raise error
-          end
         when :list
           response = Protocol::ListResponse.new(raw_response)
-          if response.successful?
-            @response_transposer.transpose(response.parse)
-          else
-            error = response.parse
-            raise error
-          end
         else
           response = Protocol::Response.new(raw_response)
-          if response.successful?
-            response.parse
-          else
-            error = response.parse
-            raise error
-          end
+        end
+
+        if response.successful?
+          @response_transposer.transpose(response.parse)
+        else
+          error = response.parse
+          raise error
         end
       end
     end

@@ -55,6 +55,10 @@ module MPD
         it 'transposes strings to integers' do
           transposer.transpose({volume: '100', playlist: '3'}).should == {volume: 100, playlist: 3}
         end
+
+        it 'simply returns argument if it is not a Hash or if it does not respond to #map' do
+          transposer.transpose(:ok).should == :ok
+        end
       end
     end
 
