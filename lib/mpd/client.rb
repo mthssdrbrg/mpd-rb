@@ -2,6 +2,7 @@ module MPD
   class Client
     def self.command(cmd, options = {})
       define_method(cmd) do |*args|
+        cmd = options[:raw] || cmd
         command = Protocol::Command.new(cmd, @command_transposer, *args)
         raw_response = @socket.execute(command)
 
@@ -37,6 +38,13 @@ module MPD
 
     # Playback options
     command :consume
+    command :random
+    command :repeat
+    command :single
+    command :crossfade
+    command :volume, :raw => :setvol
+    command :mixramp_db
+    command :mixramp_delay
 
     # Querying MPD's status
     command :clear_error
