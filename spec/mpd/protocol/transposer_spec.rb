@@ -92,6 +92,10 @@ module MPD
         it 'does not care about integers, and strings, and etc' do
           [1, '1'].each { |i| transposer.transpose(i).should == i }
         end
+
+        it 'wraps arguments that contain spaces with ""' do
+          transposer.transpose('this has spaces in it').should == '"this has spaces in it"'
+        end
       end
     end
   end

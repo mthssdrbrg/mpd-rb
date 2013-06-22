@@ -59,6 +59,8 @@ module MPD
           transpose_boolean(value)
         elsif value.is_a?(Range)
           transpose_range(value)
+        elsif value.respond_to?(:match) && value.match(HAS_WHITESPACE)
+          "\"#{value}\""
         else
           value
         end
@@ -76,6 +78,7 @@ module MPD
 
       ONE = '1'.freeze
       ZERO = '0'.freeze
+      HAS_WHITESPACE = /.\s./.freeze
     end
   end
 end
