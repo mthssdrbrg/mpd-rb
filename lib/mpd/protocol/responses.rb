@@ -13,18 +13,24 @@ module MPD
       alias_method :error?, :failure?
 
       def parse
-        raise CommandError, raw.first if failure?
-        :ok if successful?
+        if successful?
+          :ok
+        else
+          CommandError.new(raw.first)
+        end
       end
     end
 
     class HashResponse < Response
 
       def parse
-        raise CommandError, raw.first if failure?
         return nil if raw.empty?
 
-        Hash[raw.map(&method(:extract_pair))]
+        if successful?
+          Hash[raw.map(&method(:extract_pair))]
+        else
+          CommandError.new(raw.first)
+        end
       end
 
       private
@@ -46,15 +52,17 @@ module MPD
       end
 
       def parse
-        raise CommandError, raw.first if failure?
+        if successful?
+          extracted = raw.map(&method(:extract_pair))
 
-        extracted = raw.map(&method(:extract_pair))
-
-        [].tap do |memo|
-          while extracted.any? do
-            index = extracted.index { |(k, v)| k == marker }
-            memo << Hash[extracted.slice!(0, index + 1)]
+          [].tap do |memo|
+            while extracted.any? do
+              index = extracted.index { |(k, v)| k == marker }
+              memo << Hash[extracted.slice!(0, index + 1)]
+            end
           end
+        else
+          CommandError.new(raw.first)
         end
       end
     end

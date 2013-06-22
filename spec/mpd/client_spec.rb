@@ -31,7 +31,7 @@ module MPD
       context 'on erroneous command' do
         it 'raises a CommandError' do
           socket.stub(:gets).and_return("ACK [50@0] {#{command}} error message")
-          expect { client.send(command, *args) }.to raise_error(CommandError, /ACK \[50@0\] \{#{command}\}/)
+          expect { client.send(command, *args) }.to raise_error(CommandError, /error message/)
         end
       end
     end
@@ -127,7 +127,7 @@ module MPD
         context 'erroneous command' do
           it 'raises a CommandError' do
             socket.stub(:gets).and_return("ACK [50@0] {addid} Not found\n")
-            expect { client.add_id(file_uri) }.to raise_error(CommandError, /ACK \[50@0\] \{addid\}/)
+            expect { client.add_id(file_uri) }.to raise_error(CommandError, /Not found/)
           end
         end
       end
@@ -159,7 +159,7 @@ module MPD
           it 'raises a CommandError' do
             socket.stub(:puts).with('delete')
             socket.stub(:gets).and_return("ACK [2@0] {delete} wrong number of arguments for \"delete\"\n")
-            expect { client.delete(nil) }.to raise_error(CommandError, /ACK \[2@0\] \{delete\}/)
+            expect { client.delete(nil) }.to raise_error(CommandError, /wrong number of arguments for/)
           end
         end
       end

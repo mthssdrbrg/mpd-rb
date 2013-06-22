@@ -2,6 +2,24 @@ require 'spec_helper'
 
 module MPD
   module Protocol
+    shared_examples 'error handling' do
+      context 'erroneous response' do
+        ERROR_MAPPINGS.each do |code, error_constant|
+          context "when error response code is #{code}" do
+            it "returns a CommandError" do
+              response = described_class.new(["ACK [#{code}@0] {command} error message"])
+              exception = response.parse
+              exception.should be_a(CommandError)
+              exception.code.should == code
+              exception.index.should == 0
+              exception.command.should == :command
+              exception.message.should == 'error message'
+            end
+          end
+        end
+      end
+    end
+
     describe Response do
       describe '#successful?' do
         it 'returns true if raw response is an empty list' do
@@ -47,12 +65,7 @@ module MPD
           end
         end
 
-        context 'erroneous response' do
-          it 'raises a CommandError' do
-            response = Response.new(['ACK [50@0] {command} error message'])
-            expect { response.parse }.to raise_error(CommandError, /ACK \[50@0\] \{command\}/)
-          end
-        end
+        include_examples 'error handling'
       end
     end
 
@@ -108,12 +121,7 @@ module MPD
           end
         end
 
-        context 'erroneous response' do
-          it 'raises a CommandError' do
-            response = HashResponse.new(['ACK [50@0] {command} error message'])
-            expect { response.parse }.to raise_error(CommandError, /ACK \[50@0\] \{command\}/)
-          end
-        end
+        include_examples 'error handling'
       end
     end
 
@@ -163,12 +171,7 @@ module MPD
           end
         end
 
-        context 'erroneous response' do
-          it 'raises a CommandError' do
-            response = ListResponse.new(['ACK [50@0] {command} error message'])
-            expect { response.parse }.to raise_error(CommandError, /ACK \[50@0\] \{command\}/)
-          end
-        end
+        include_examples 'error handling'
       end
     end
   end
