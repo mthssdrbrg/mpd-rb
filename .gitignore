@@ -4,12 +4,10 @@
 
 pkg
 rdoc
-spec/reports
+coverage
 tmp
 
 # YARD artifacts
 .yardoc
 _yardoc
 doc/
-
-defs
