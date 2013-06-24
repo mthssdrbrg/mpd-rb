@@ -3,7 +3,6 @@ require 'spec_helper'
 module MPD
   module Protocol
     describe RubyesqueTransposer do
-
       let :transposer do
         described_class.new
       end
@@ -58,47 +57,6 @@ module MPD
 
         it 'simply returns argument if it is not a Hash or if it does not respond to #map' do
           transposer.transpose(:ok).should == :ok
-        end
-      end
-    end
-
-    describe MpdesqueTransposer do
-      let :transposer do
-        described_class.new
-      end
-
-      describe '#transpose_range' do
-        it 'transposes a Ruby Range to a \'MPD\' Range' do
-          transposer.transpose_range(1..5).should == '1:5'
-          transposer.transpose_range(1...5).should == '1:4'
-        end
-      end
-
-      describe '#transpose_boolean' do
-        it 'transposes true to 1' do
-          transposer.transpose_boolean(true).should == '1'
-        end
-
-        it 'transposes false to 0' do
-          transposer.transpose_boolean(false).should == '0'
-        end
-      end
-
-      describe '#transpose' do
-        it 'transposes ranges' do
-          transposer.transpose(1..5).should == '1:5'
-        end
-
-        it 'transposes booleans' do
-          transposer.transpose(true).should == '1'
-        end
-
-        it 'does not care about integers, and strings, and etc' do
-          [1, '1'].each { |i| transposer.transpose(i).should == i }
-        end
-
-        it 'wraps arguments that contain spaces with ""' do
-          transposer.transpose('this has spaces in it').should == '"this has spaces in it"'
         end
       end
     end

@@ -1,8 +1,8 @@
 module MPD
   module Protocol
     TRANSPOSE_BOOLEAN = [:repeat, :random, :consume, :single, :xfade].freeze
-    TRANSPOSE_SYMBOL = [:state].freeze
-    TRANSPOSE_FLOAT = [:mixrampdelay].freeze
+    TRANSPOSE_SYMBOL  = [:state].freeze
+    TRANSPOSE_FLOAT   = [:mixrampdelay].freeze
 
     class RubyesqueTransposer
       def transpose(thing)
@@ -53,34 +53,6 @@ module MPD
           end
         end
       end
-    end
-
-    class MpdesqueTransposer
-      def transpose(value)
-        if !!value == value
-          transpose_boolean(value)
-        elsif value.is_a?(Range)
-          transpose_range(value)
-        elsif value.respond_to?(:match) && value.match(HAS_WHITESPACE)
-          "\"#{value}\""
-        else
-          value
-        end
-      end
-
-      def transpose_range(range)
-        [range.min, range.max].join(COLON)
-      end
-
-      def transpose_boolean(value)
-        value ? ONE : ZERO
-      end
-
-      private
-
-      ONE = '1'.freeze
-      ZERO = '0'.freeze
-      HAS_WHITESPACE = /.\s./.freeze
     end
   end
 end
