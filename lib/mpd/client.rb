@@ -5,21 +5,13 @@ module MPD
         cmd = options[:raw] || cmd
         command = Protocol::Command.new(cmd, *args)
         raw_response = @socket.execute(command)
-
-        case options[:response]
-        when :hash
-          response = Protocol::HashResponse.new(raw_response)
-        when :list
-          response = Protocol::ListResponse.new(raw_response)
-        else
-          response = Protocol::Response.new(raw_response)
-        end
+        response_clazz = "#{options[:response].to_s.capitalize}Response"
+        response = Protocol.const_get(response_clazz).new(raw_response)
 
         if response.successful?
           @response_transposer.transpose(response.parse)
         else
-          error = response.parse
-          raise error
+          raise response.parse
         end
       end
     end
