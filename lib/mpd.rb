@@ -19,5 +19,6 @@ module MPD
 end
 
 require 'mpd/protocol'
+require 'mpd/converter'
 require 'mpd/client'
 require 'mpd/player'
