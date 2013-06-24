@@ -26,7 +26,7 @@ module MPD
   end
 end
 
-require 'mpd/protocol/commands'
+require 'mpd/protocol/command'
 require 'mpd/protocol/responses'
 require 'mpd/protocol/convenience_socket'
 require 'mpd/protocol/transposer'

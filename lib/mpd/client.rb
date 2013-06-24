@@ -3,7 +3,7 @@ module MPD
     def self.command(cmd, options = {})
       define_method(cmd) do |*args|
         cmd = options[:raw] || cmd
-        command = Protocol::Command.new(cmd, @command_transposer, *args)
+        command = Protocol::Command.new(cmd, *args)
         raw_response = @socket.execute(command)
 
         case options[:response]
@@ -68,7 +68,6 @@ module MPD
     def initialize(socket)
       @socket = Protocol::ConvenienceSocket.new(socket)
       @response_transposer = Protocol::RubyesqueTransposer.new
-      @command_transposer = Protocol::MpdesqueTransposer.new
     end
   end
 end
