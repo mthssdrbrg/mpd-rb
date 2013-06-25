@@ -8,7 +8,7 @@ module MPD
           context "when error response code is #{code}" do
             it "returns a CommandError" do
               response = described_class.new(["ACK [#{code}@0] {command} error message"])
-              exception = response.parse
+              exception = response.body
               exception.should be_a(CommandError)
               exception.code.should == code
               exception.index.should == 0
@@ -57,11 +57,11 @@ module MPD
         end
       end
 
-      describe '#parse' do
+      describe '#body' do
         context 'successful response' do
           it 'returns :ok' do
             response = Response.new([])
-            response.parse.should == :ok
+            response.body.should == :ok
           end
         end
 
@@ -87,11 +87,11 @@ module MPD
         ]
       end
 
-      describe '#parse' do
+      describe '#body' do
         context 'successful response' do
           it 'makes a best effort to parse the response as a hash' do
             response = HashResponse.new(raw)
-            response.parse.should == {
+            response.body.should == {
               :file => '19-gang_starr-next_time-dsp_int.mp3',
               :last_modified => '2011-06-22T22:23:56Z',
               :time => '186',
@@ -108,7 +108,7 @@ module MPD
 
           it 'returns nil if raw response is an empty list' do
             response = HashResponse.new([])
-            response.parse.should be_nil
+            response.body.should be_nil
           end
         end
 
@@ -117,7 +117,7 @@ module MPD
     end
 
     describe ListResponse do
-      describe '#parse' do
+      describe '#body' do
         context 'successful response' do
           let :raw do
             [
@@ -151,14 +151,14 @@ module MPD
           end
 
           it 'returns a list of hashes extracted from the raw response' do
-            response = ListResponse.new(raw).parse
+            response = ListResponse.new(raw).body
             response.should have(2).items
             response.collect { |r| r[:id] }.should == ['18', '22']
           end
 
           it 'returns an empty list if raw response is empty' do
             response = ListResponse.new([])
-            response.parse.should == []
+            response.body.should == []
           end
         end
 

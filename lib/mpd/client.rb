@@ -9,9 +9,9 @@ module MPD
         response = Protocol.const_get(response_clazz).new(raw_response)
 
         if response.successful?
-          response.parse
+          response.body
         else
-          raise response.parse
+          raise response.body
         end
       end
     end

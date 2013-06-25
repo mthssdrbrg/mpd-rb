@@ -12,7 +12,7 @@ module MPD
       end
       alias_method :error?, :failure?
 
-      def parse
+      def body
         if successful?
           :ok
         else
@@ -23,7 +23,7 @@ module MPD
 
     class HashResponse < Response
 
-      def parse
+      def body
         return nil if raw.empty?
 
         if successful?
@@ -51,7 +51,7 @@ module MPD
         @marker = marker
       end
 
-      def parse
+      def body
         if successful?
           extracted = raw.map(&method(:extract_pair))
 
