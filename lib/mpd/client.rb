@@ -9,7 +9,7 @@ module MPD
         response = Protocol.const_get(response_clazz).new(raw_response)
 
         if response.successful?
-          @response_transposer.transpose(response.parse)
+          response.parse
         else
           raise response.parse
         end
@@ -59,7 +59,6 @@ module MPD
 
     def initialize(socket)
       @socket = Protocol::ConvenienceSocket.new(socket)
-      @response_transposer = Protocol::RubyesqueTransposer.new
     end
   end
 end

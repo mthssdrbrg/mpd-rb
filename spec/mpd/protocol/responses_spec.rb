@@ -89,15 +89,6 @@ module MPD
 
       describe '#parse' do
         context 'successful response' do
-          it 'makes a best effort to convert possible integers and floats to their respective type', pending: true do
-            response = HashResponse.new(raw).parse
-            response[:time].should == 186
-            response[:track].should == 19
-            response[:date].should == 1998
-            response[:pos].should == 0
-            response[:id].should == 0
-          end
-
           it 'makes a best effort to parse the response as a hash' do
             response = HashResponse.new(raw)
             response.parse.should == {

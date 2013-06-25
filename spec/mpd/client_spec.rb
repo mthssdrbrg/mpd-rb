@@ -108,7 +108,7 @@ module MPD
             end
 
             it 'returns a hash containing a single key-value pair' do
-              client.add_id(file_uri, position).should == {:id => 12}
+              client.add_id(file_uri, position).should == {:id => '12'}
             end
           end
 
@@ -119,7 +119,7 @@ module MPD
             end
 
             it 'returns a hash containing a single key-value pair' do
-              client.add_id(file_uri).should == {:id => 12}
+              client.add_id(file_uri).should == {:id => '12'}
             end
           end
         end
@@ -377,19 +377,19 @@ module MPD
           socket.stub(:puts).with('status')
           socket.stub(:gets).and_return(*response)
           client.status.should == {
-            volume: 100,
-            repeat: false,
-            random: false,
-            single: false,
-            consume: false,
-            playlist: 3,
-            playlistlength: 1,
-            xfade: false,
-            mixrampdb: 0.000000,
-            mixrampdelay: Float::NAN,
-            state: :stop,
-            song: 0,
-            songid: 0
+            volume: '100',
+            repeat: '0',
+            random: '0',
+            single: '0',
+            consume: '0',
+            playlist: '3',
+            playlistlength: '1',
+            xfade: '0',
+            mixrampdb: '0.000000',
+            mixrampdelay: 'nan',
+            state: 'stop',
+            song: '0',
+            songid: '0'
           }
         end
       end
@@ -420,13 +420,13 @@ module MPD
 
         it 'returns a hash with statistics' do
           client.stats.should == {
-            :artists => 23,
-            :albums => 27,
-            :songs => 270,
-            :uptime => 4560,
-            :playtime => 66,
-            :db_playtime => 77570,
-            :db_update => 1371762307
+            :artists => '23',
+            :albums => '27',
+            :songs => '270',
+            :uptime => '4560',
+            :playtime => '66',
+            :db_playtime => '77570',
+            :db_update => '1371762307'
           }
         end
       end
@@ -465,11 +465,11 @@ module MPD
           song[:artist].should == 'Gang Starr'
           song[:title].should == 'Next Time'
           song[:album].should == 'Moment Of Truth'
-          song[:track].should == 19
+          song[:track].should == '19'
           song[:genre].should == 'Hip-Hop'
-          song[:pos].should == 0
-          song[:id].should == 0
-          song[:time].should == 186
+          song[:pos].should == '0'
+          song[:id].should == '0'
+          song[:time].should == '186'
           song[:file].should == "19-gang_starr-next_time-dsp_int.mp3"
           song[:last_modified].should == "2011-06-22T22:23:56Z"
         end
@@ -496,7 +496,7 @@ module MPD
           end
 
           it 'returns a hash with the job ID' do
-            client.update(uri).should == {updating_db: 4}
+            client.update(uri).should == {updating_db: '4'}
           end
         end
 
@@ -508,7 +508,7 @@ module MPD
           end
 
           it 'returns a hash with the job ID' do
-            client.update.should == {updating_db: 4}
+            client.update.should == {updating_db: '4'}
           end
         end
       end
@@ -532,7 +532,7 @@ module MPD
           end
 
           it 'returns a hash with the job ID' do
-            client.rescan(uri).should == {updating_db: 3}
+            client.rescan(uri).should == {updating_db: '3'}
           end
         end
 
@@ -544,7 +544,7 @@ module MPD
           end
 
           it 'returns a hash with the job ID' do
-            client.rescan.should == {updating_db: 3}
+            client.rescan.should == {updating_db: '3'}
           end
         end
       end
