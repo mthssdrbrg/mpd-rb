@@ -274,6 +274,24 @@ module MPD
           end
         end
       end
+
+      describe '#swap' do
+        it_behaves_like 'a simple command', :swap, 'swap 2 3', 2, 3
+      end
+
+      describe '#swap_id' do
+        it_behaves_like 'a simple command', :swap_id, 'swapid 2 3', 2, 3
+      end
+
+      describe '#shuffle' do
+        context 'with range' do
+          it_behaves_like 'a simple command', :shuffle, 'shuffle 0:5', 0..5
+        end
+
+        context 'without range' do
+          it_behaves_like 'a simple command', :shuffle, 'shuffle'
+        end
+      end
     end
 
     context 'Playback options' do

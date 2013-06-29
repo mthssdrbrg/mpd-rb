@@ -36,6 +36,9 @@ module MPD
     command :move
     command :move_id
     command :playlist_info, :response => :list
+    command :swap
+    command :swap_id
+    command :shuffle
 
     # Playback options
     command :consume
