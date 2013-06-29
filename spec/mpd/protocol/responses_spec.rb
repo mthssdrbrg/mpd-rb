@@ -70,7 +70,6 @@ module MPD
     end
 
     describe HashResponse do
-
       let :raw do
         [
           "file: 19-gang_starr-next_time-dsp_int.mp3",
@@ -119,46 +118,57 @@ module MPD
     describe ListResponse do
       describe '#body' do
         context 'successful response' do
-          let :raw do
-            [
-              "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
-              "Last-Modified: 2012-10-25T20:48:50Z\n",
-              "Time: 52\n",
-              "Artist: Doomtree\n",
-              "AlbumArtist: Doomtree\n",
-              "Title: We're Workin' Hard\n",
-              "Album: F H : X V (False Hopes 15)\n",
-              "Track: 1/8\n",
-              "Date: 2009\n",
-              "Genre: Hip Hop\n",
-              "Disc: 1/1\n",
-              "Pos: 0\n",
-              "Id: 18\n",
-              "file: 2009-False Hopes Xv (V0)/05 - Scuffle - Dessa.mp3\n",
-              "Last-Modified: 2012-10-25T20:48:52Z\n",
-              "Time: 168\n",
-              "Artist: Doomtree\n",
-              "AlbumArtist: Doomtree\n",
-              "Title: Scuffle ~ Dessa\n",
-              "Album: F H : X V (False Hopes 15)\n",
-              "Track: 5/8\n",
-              "Date: 2009\n",
-              "Genre: Hip Hop\n",
-              "Disc: 1/1\n",
-              "Pos: 1\n",
-              "Id: 22\n"
-            ]
+          context 'when given explicit marker' do
+            context 'multiple entries' do
+              let :raw do
+                [
+                  "key1: hi", "key2: bye", "marker: marker1",
+                  "key1: hi2", "key2: bye2", "marker: marker2"
+                ]
+              end
+
+              it 'returns a list of hashes, separated by marker' do
+                response = ListResponse.new(raw, :marker).body
+                response.should have(2).items
+                response.collect { |r| r[:marker] }.should == ['marker1', 'marker2']
+              end
+            end
+
+            context 'single entry' do
+              let :raw do
+                [
+                  "key1: hi", "key2: bye", "marker: marker1"
+                ]
+              end
+
+              it 'returns a list of hashes, separated by marker' do
+                response = ListResponse.new(raw, :marker).body
+                response.should have(1).items
+                response.collect { |r| r[:marker] }.should == ['marker1']
+              end
+            end
           end
 
-          it 'returns a list of hashes extracted from the raw response' do
-            response = ListResponse.new(raw).body
-            response.should have(2).items
-            response.collect { |r| r[:id] }.should == ['18', '22']
-          end
+          context 'when not given explicit marker' do
+            let :raw do
+              [
+                "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
+                "Id: 18\n",
+                "file: 2009-False Hopes Xv (V0)/05 - Scuffle - Dessa.mp3\n",
+                "Id: 22\n"
+              ]
+            end
 
-          it 'returns an empty list if raw response is empty' do
-            response = ListResponse.new([])
-            response.body.should == []
+            it 'returns a list of hashes, separated by :id' do
+              response = ListResponse.new(raw).body
+              response.should have(2).items
+              response.collect { |r| r[:id] }.should == ['18', '22']
+            end
+
+            it 'returns an empty list if raw response is empty' do
+              response = ListResponse.new([])
+              response.body.should == []
+            end
           end
         end
 
