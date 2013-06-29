@@ -4,7 +4,7 @@ module MPD
       define_method(cmd) do |*args|
         cmd = options[:raw] || cmd
         command = Protocol::Command.new(cmd, *args)
-        raw_response = @socket.execute(command)
+        raw_response = socket.execute(command)
         response_clazz = "#{options[:response].to_s.capitalize}Response"
         response = Protocol.const_get(response_clazz).new(raw_response)
 
@@ -60,8 +60,40 @@ module MPD
     command :update, :response => :hash
     command :rescan, :response => :hash
 
-    def initialize(socket)
-      @socket = Protocol::ConvenienceSocket.new(socket)
+    # Connection settings
+    command :close
+
+    attr_reader :protocol_version
+
+    def initialize(options = {})
+      @host = options[:host] || 'localhost'
+      @port = options[:port] || 6600
+      @socket_class = options[:socket_class] || TCPSocket
+      @connected = false
+    end
+
+    def connect
+      unless @connected
+        tcp_socket = @socket_class.new(@host, @port)
+        @socket = Protocol::ConvenienceSocket.new(tcp_socket)
+        @protocol_version = @socket.handshake
+        @connected = true
+      end
+
+      self
+    end
+
+    def disconnect
+      if @connected
+        self.close
+        @socket.close
+      end
+    end
+
+    private
+
+    def socket
+      @socket
     end
   end
 end

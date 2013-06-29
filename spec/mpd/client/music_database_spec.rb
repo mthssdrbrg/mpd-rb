@@ -7,6 +7,10 @@ module MPD
   describe Client do
     include_context 'client setup'
 
+    before do
+      client.connect
+    end
+
     context 'The music database' do
       context '#update' do
         before do

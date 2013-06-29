@@ -7,6 +7,10 @@ module MPD
   describe Client do
     include_context 'client setup'
 
+    before do
+      client.connect
+    end
+
     context 'The current playlist' do
       describe '#add' do
         it_behaves_like 'a simple command', :add, 'add random_existing_music_file.mp3', 'random_existing_music_file.mp3'

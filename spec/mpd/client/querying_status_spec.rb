@@ -7,6 +7,10 @@ module MPD
   describe Client do
     include_context 'client setup'
 
+    before do
+      client.connect
+    end
+
     context 'Querying MPD\'s status' do
       describe '#clear_error' do
         it_behaves_like 'a simple command', :clear_error, 'clearerror'

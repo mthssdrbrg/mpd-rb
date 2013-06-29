@@ -2,16 +2,28 @@
 
 shared_context 'client setup' do
   let :client do
-    MPD::Client.new(socket)
+    MPD::Client.new(socket_class: socket_class)
+  end
+
+  let :socket_class do
+    mock(new: socket)
   end
 
   let :socket do
     mock(:socket)
   end
+
+  before do
+    socket.stub(:gets).and_return("OK MPD 0.17.0\n")
+  end
 end
 
 shared_examples 'a simple command' do |command, expected, *args|
   include_context 'client setup'
+
+  before do
+    client.connect
+  end
 
   before do
     socket.stub(:puts).with(expected)

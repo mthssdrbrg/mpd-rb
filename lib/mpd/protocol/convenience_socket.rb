@@ -9,13 +9,24 @@ module MPD
         response
       end
 
+      def handshake
+        initial = socket.gets
+        initial.split(SPACE).last
+      end
+
+      def close
+        socket.close unless socket.closed?
+      end
+
       private
 
       def each_response_line
         while true do
           line = socket.gets
 
-          if line.match(OK)
+          if !line
+            break
+          elsif line.match(OK)
             break
           elsif line.match(ERROR)
             yield line.chomp
