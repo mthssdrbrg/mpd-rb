@@ -19,5 +19,6 @@ module MPD
 end
 
 require 'mpd/protocol'
+require 'mpd/command_dsl'
 require 'mpd/client'
 require 'mpd/player'
