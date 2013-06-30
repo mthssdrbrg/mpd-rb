@@ -24,7 +24,7 @@ module MPD
       end
 
       it 'performs initial handshake' do
-        socket.should_receive(:gets).and_return("OK MPD 0.17.0\n")
+        socket.should_receive(:gets)
         client.connect
       end
 
@@ -38,7 +38,7 @@ module MPD
       end
 
       it 'connects once' do
-        socket_class.should_receive(:new).with('localhost', 6600).once
+        socket_class.should_receive(:new).once
         client.connect
         client.connect
       end

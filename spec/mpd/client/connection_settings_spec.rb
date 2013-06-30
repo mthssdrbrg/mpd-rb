@@ -7,10 +7,6 @@ module MPD
   describe Client do
     include_context 'client setup'
 
-    before do
-      client.connect
-    end
-
     describe '#close' do
       before do
         client.connect
@@ -29,11 +25,24 @@ module MPD
           client.close.should == :ok
         end
       end
+    end
 
-      context 'on erroneous command' do
-        it 'raises a CommandError' do
-          socket.stub(:gets).and_return("ACK [50@0] {close} error message")
-          expect { client.close }.to raise_error(MPD::CommandError, /error message/)
+    describe '#kill' do
+      before do
+        client.connect
+
+        socket.stub(:puts).with('kill')
+        socket.stub(:gets).and_return(nil)
+      end
+
+      it 'sends a \'kill\' command' do
+        socket.should_receive(:puts).once
+        client.kill
+      end
+
+      context 'on successful command' do
+        it 'returns :ok' do
+          client.kill.should == :ok
         end
       end
     end

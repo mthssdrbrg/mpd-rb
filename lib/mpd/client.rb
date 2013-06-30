@@ -48,6 +48,7 @@ module MPD
 
     # Connection settings
     command :close
+    command :kill
 
     attr_reader :protocol_version
 
