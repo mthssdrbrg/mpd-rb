@@ -49,6 +49,7 @@ module MPD
     # Connection settings
     command :close
     command :kill
+    command :ping
 
     attr_reader :protocol_version
 

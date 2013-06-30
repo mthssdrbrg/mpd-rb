@@ -46,5 +46,9 @@ module MPD
         end
       end
     end
+
+    describe '#ping' do
+      it_behaves_like 'a simple command', :ping, 'ping'
+    end
   end
 end
