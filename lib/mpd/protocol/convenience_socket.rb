@@ -24,9 +24,7 @@ module MPD
         while true do
           line = socket.gets
 
-          if !line
-            break
-          elsif line.match(OK)
+          if !line || line.match(OK)
             break
           elsif line.match(ERROR)
             yield line.chomp
