@@ -22,22 +22,14 @@ module MPD
 
       def transpose(value)
         if !!value == value
-          transpose_boolean(value)
+          !!value ? ONE : ZERO
         elsif value.is_a?(Range)
-          transpose_range(value)
+          [value.min, value.max].join(COLON)
         elsif value.respond_to?(:match) && value.match(HAS_WHITESPACE)
           "\"#{value}\""
         else
-          value
+          value.to_s
         end
-      end
-
-      def transpose_range(range)
-        [range.min, range.max].join(COLON)
-      end
-
-      def transpose_boolean(value)
-        value ? ONE : ZERO
       end
 
       private
