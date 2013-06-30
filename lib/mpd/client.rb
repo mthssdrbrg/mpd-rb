@@ -45,6 +45,7 @@ module MPD
     # The music database
     command :update, :response => :hash
     command :rescan, :response => :hash
+    command :count, :response => :hash
 
     # Connection settings
     command :close

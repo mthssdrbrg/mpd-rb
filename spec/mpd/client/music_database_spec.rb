@@ -83,6 +83,36 @@ module MPD
           end
         end
       end
+
+      context '#count' do
+        context 'with valid arguments' do
+          it 'returns a hash with statistics' do
+            socket.stub(:puts).with('count artist "Spec Artist"')
+            socket.stub(:gets).and_return("songs: 5\n", "playtime: 620\n", "OK\n")
+            client.count(:artist, 'Spec Artist').should == {
+              songs: '5',
+              playtime: '620'
+            }
+          end
+        end
+
+        context 'with invalid arguments' do
+          it 'raises CommandError' do
+            socket.stub(:puts)
+            socket.stub(:gets).and_return("ACK [2@0] {count} incorrect arguments\n")
+            expect { client.count('something', 'wrong') }.to raise_error(CommandError, /incorrect arguments/)
+          end
+        end
+
+        context 'with too few arguments' do
+          it 'raises CommandError' do
+            socket.stub(:puts)
+            socket.stub(:gets).and_return("ACK [2@0] {count} too few arguments for \"count\"\n")
+            expect { client.count('something') }.to raise_error(CommandError, /too few arguments/)
+            expect { client.count }.to raise_error(CommandError, /too few arguments/)
+          end
+        end
+      end
     end
   end
 end
