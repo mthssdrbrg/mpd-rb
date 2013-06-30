@@ -8,7 +8,7 @@ module MPD
           context "when error response code is #{code}" do
             it "returns a CommandError" do
               response = described_class.new(["ACK [#{code}@0] {command} error message"])
-              exception = response.body
+              exception = response.error
               exception.should be_a(CommandError)
               exception.code.should == code
               exception.index.should == 0
@@ -65,6 +65,13 @@ module MPD
           end
         end
 
+        context 'erroneous response' do
+          it 'returns a CommandError' do
+            response = described_class.new(["ACK [51@0] {command} error message"])
+            response.body.should be_a(CommandError)
+          end
+        end
+
         include_examples 'error handling'
       end
     end
@@ -108,6 +115,13 @@ module MPD
           it 'returns nil if raw response is an empty list' do
             response = HashResponse.new([])
             response.body.should be_nil
+          end
+        end
+
+        context 'erroneous response' do
+          it 'returns a CommandError' do
+            response = described_class.new(["ACK [51@0] {command} error message"])
+            response.body.should be_a(CommandError)
           end
         end
 
@@ -169,6 +183,13 @@ module MPD
               response = ListResponse.new([])
               response.body.should == []
             end
+          end
+        end
+
+        context 'erroneous response' do
+          it 'returns a CommandError' do
+            response = described_class.new(["ACK [51@0] {command} error message"])
+            response.body.should be_a(CommandError)
           end
         end
 

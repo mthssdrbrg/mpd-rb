@@ -13,11 +13,11 @@ module MPD
       alias_method :error?, :failure?
 
       def body
-        if successful?
-          :ok
-        else
-          CommandError.new(raw.first)
-        end
+        successful? ? :ok : error
+      end
+
+      def error
+        CommandError.new(raw.first)
       end
     end
 
@@ -29,7 +29,7 @@ module MPD
         if successful?
           Hash[raw.map(&method(:extract_pair))]
         else
-          CommandError.new(raw.first)
+          error
         end
       end
 
@@ -62,7 +62,7 @@ module MPD
             end
           end
         else
-          CommandError.new(raw.first)
+          error
         end
       end
     end

@@ -11,7 +11,7 @@ module MPD
         if response.successful?
           response.body
         else
-          raise response.body
+          raise response.error
         end
       end
     end
