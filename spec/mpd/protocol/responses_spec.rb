@@ -2,34 +2,26 @@ require 'spec_helper'
 
 module MPD
   module Protocol
-    shared_examples 'error handling' do
-      context 'erroneous response' do
-        ERROR_MAPPINGS.each do |code, error_constant|
-          context "when error response code is #{code}" do
-            it "returns a CommandError" do
-              response = described_class.new(["ACK [#{code}@0] {command} error message"])
-              exception = response.error
-              exception.should be_a(CommandError)
-              exception.code.should == code
-              exception.index.should == 0
-              exception.command.should == :command
-              exception.message.should == 'error message'
-            end
+    describe Response do
+      let :response do
+        Response.new(raw)
+      end
+
+      describe '#successful?' do
+        context 'when raw response is an empty list' do
+          let(:raw) { [] }
+
+          it 'returns true' do
+            response.successful?.should be_true
           end
         end
-      end
-    end
 
-    describe Response do
-      describe '#successful?' do
-        it 'returns true if raw response is an empty list' do
-          response = Response.new([])
-          response.successful?.should be_true
-        end
+        context 'when raw response is nil' do
+          let(:raw) { nil }
 
-        it 'returns false if raw response is nil' do
-          response = Response.new(nil)
-          response.successful?.should be_false
+          it 'returns false' do
+            response.successful?.should be_false
+          end
         end
 
         it 'is aliased to #success?' do
@@ -40,14 +32,20 @@ module MPD
       end
 
       describe '#failure?' do
-        it 'returns true if raw response contains an error line' do
-          response = Response.new(['ACK [50@0] {command} error message'])
-          response.failure?.should be_true
+        context 'when raw response contains an error line' do
+          let(:raw) { ['ACK [50@0] {command} error message'] }
+
+          it 'returns true if raw response contains an error line' do
+            response.failure?.should be_true
+          end
         end
 
-        it 'returns true if raw response is nil' do
-          response = Response.new(nil)
-          response.failure?.should be_true
+        context 'when raw response is nil' do
+          let(:raw) { nil }
+
+          it 'returns true if raw response is nil' do
+            response.failure?.should be_true
+          end
         end
 
         it 'is aliased to #error?' do
@@ -59,44 +57,65 @@ module MPD
 
       describe '#body' do
         context 'successful response' do
+          let(:raw) { [] }
+
           it 'returns :ok' do
-            response = Response.new([])
             response.body.should == :ok
           end
         end
 
         context 'erroneous response' do
+          let(:raw) { ["ACK [51@0] {command} error message"] }
+
           it 'returns a CommandError' do
-            response = described_class.new(["ACK [51@0] {command} error message"])
             response.body.should be_a(CommandError)
           end
         end
+      end
 
-        include_examples 'error handling'
+      describe '#error' do
+        context 'successful response' do
+          let(:raw) { [] }
+
+          it 'returns nil' do
+            response.error.should be_nil
+          end
+        end
+
+        context 'erroneous response' do
+          let(:raw) { ["ACK [51@0] {command} error message"] }
+
+          it 'returns a CommandError' do
+            response.error.should be_a(CommandError)
+          end
+        end
       end
     end
 
     describe HashResponse do
-      let :raw do
-        [
-          "file: 19-gang_starr-next_time-dsp_int.mp3",
-          "Last-Modified: 2011-06-22T22:23:56Z",
-          "Time: 186",
-          "Artist: Gang Starr",
-          "Title: Next Time",
-          "Album: Moment Of Truth",
-          "Track: 19",
-          "Date: 1998",
-          "Genre: Hip-Hop",
-          "Pos: 0",
-          "Id: 0"
-        ]
+      let :response do
+        described_class.new(raw)
       end
 
       describe '#body' do
         context 'successful response' do
-          it 'makes a best effort to parse the response as a hash' do
-            response = HashResponse.new(raw)
+          let :raw do
+            [
+              "file: 19-gang_starr-next_time-dsp_int.mp3",
+              "Last-Modified: 2011-06-22T22:23:56Z",
+              "Time: 186",
+              "Artist: Gang Starr",
+              "Title: Next Time",
+              "Album: Moment Of Truth",
+              "Track: 19",
+              "Date: 1998",
+              "Genre: Hip-Hop",
+              "Pos: 0",
+              "Id: 0"
+            ]
+          end
+
+          it 'returns as hash representation of the response' do
             response.body.should == {
               :file => '19-gang_starr-next_time-dsp_int.mp3',
               :last_modified => '2011-06-22T22:23:56Z',
@@ -112,53 +131,100 @@ module MPD
             }
           end
 
-          it 'returns nil if raw response is an empty list' do
-            response = HashResponse.new([])
-            response.body.should be_nil
+          context 'when raw response is an empty list' do
+            let(:raw) { [] }
+
+            it 'returns nil if raw response is an empty list' do
+              response.body.should be_nil
+            end
           end
         end
 
         context 'erroneous response' do
+          let(:raw) { ["ACK [51@0] {command} error message"] }
+
           it 'returns a CommandError' do
-            response = described_class.new(["ACK [51@0] {command} error message"])
             response.body.should be_a(CommandError)
           end
         end
-
-        include_examples 'error handling'
       end
     end
 
     describe ListResponse do
+      let :response do
+        ListResponse.new(raw)
+      end
+
       describe '#body' do
         context 'successful response' do
-          context 'when given explicit marker' do
-            context 'multiple entries' do
+          context 'when raw response is empty' do
+            let(:raw) { [] }
+
+            it 'returns an empty list' do
+              response.body.should == []
+            end
+          end
+
+          context 'where each item is a single key-value pair' do
+            context 'a single entry' do
               let :raw do
-                [
-                  "marker: marker1", "key2: bye", "key1: hi1",
-                  "marker: marker2", "key2: bye2", "key1: hi2"
-                ]
+                ["file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n"]
               end
 
-              it 'returns a list of hashes, separated by marker' do
-                response = ListResponse.new(raw, :marker => :marker).body
-                response.should have(2).items
-                response.collect { |r| r[:marker] }.should == ['marker1', 'marker2']
+              it 'returns a list with a single hash' do
+                list = response.body
+                list.should have(1).item
+                list.first.keys.should == [:file]
               end
             end
 
-            context 'single entry' do
+            context 'multiple entries' do
               let :raw do
                 [
-                  "marker: marker1", "key1: hi", "key2: bye"
+                  "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
+                  "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
+                  "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n"
                 ]
               end
 
-              it 'returns a list of hashes, separated by marker' do
-                response = ListResponse.new(raw, :marker => :marker).body
-                response.should have(1).items
-                response.collect { |r| r[:marker] }.should == ['marker1']
+              it 'returns a list of hashes' do
+                list = response.body
+                list.should have(3).items
+                list.each { |i| i.keys.should == [:file] }
+              end
+            end
+          end
+
+          context 'where each item consists of multiple key-value pairs' do
+            context 'a single entry' do
+              let :raw do
+                [
+                  "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
+                  "Id: 18\n"
+                ]
+              end
+
+              it 'returns a list with a single hash' do
+                list = response.body
+                list.should have(1).item
+                list.each { |i| i.keys.should == [:file, :id] }
+              end
+            end
+
+            context 'multiple entries' do
+              let :raw do
+                [
+                  "file: 2009-False Hopes Xv (V0)/01 - We're Workin' Hard.mp3\n",
+                  "Id: 18\n",
+                  "file: 2009-False Hopes Xv (V0)/05 - Scuffle - Dessa.mp3\n",
+                  "Id: 22\n"
+                ]
+              end
+
+              it 'returns a list of hashes' do
+                list = response.body
+                list.should have(2).items
+                list.each { |i| i.keys.should == [:file, :id] }
               end
             end
           end
@@ -173,27 +239,42 @@ module MPD
               ]
             end
 
-            it 'returns a list of hashes, separated by :file' do
-              response = ListResponse.new(raw).body
-              response.should have(2).items
-              response.collect { |r| r[:id] }.should == ['18', '22']
+            it 'uses :file as a separator' do
+              list = response.body
+              list.should have(2).items
+              list.each { |i| i.keys.should == [:file, :id] }
+            end
+          end
+
+          context 'when given explicit marker' do
+            let :raw do
+              [
+                "marker: marker1\n", "key2: bye\n", "key1: hi1\n",
+                "marker: marker2\n", "key2: bye2\n", "key1: hi2\n"
+              ]
             end
 
-            it 'returns an empty list if raw response is empty' do
-              response = ListResponse.new([])
-              response.body.should == []
+            let :response do
+              ListResponse.new(raw, :marker => :marker)
+            end
+
+            it 'uses marker as separator' do
+              list = response.body
+              list.should have(2).items
+              list.each { |r| r.keys.should == [:marker, :key2, :key1] }
             end
           end
         end
 
         context 'erroneous response' do
+          let :raw do
+            ["ACK [51@0] {command} error message"]
+          end
+
           it 'returns a CommandError' do
-            response = described_class.new(["ACK [51@0] {command} error message"])
             response.body.should be_a(CommandError)
           end
         end
-
-        include_examples 'error handling'
       end
     end
   end

@@ -23,7 +23,7 @@ module MPD
       end
 
       def error
-        CommandError.new(raw.first)
+        CommandError.new(raw.first) if error?
       end
     end
 
