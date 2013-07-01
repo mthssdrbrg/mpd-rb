@@ -45,6 +45,38 @@ module MPD
           end
         end
       end
+
+      describe '#eql?' do
+        it 'returns true if command and arguments are the same' do
+          c1 = Command.new(:seek, 10)
+          c2 = Command.new(:seek, 10)
+          c1.should eql(c2)
+        end
+
+        it 'makes a difference between strings and symbols' do
+          c1 = Command.new(:seek, 10)
+          c2 = Command.new('seek', 10)
+          c1.should_not eql(c2)
+        end
+
+        it 'returns false if command is the same but arguments differ' do
+          c1 = Command.new(:seek, 11)
+          c2 = Command.new(:seek, 10)
+          c1.should_not eql(c2)
+        end
+
+        it 'returns false if commands differ but arguments are the same' do
+          c1 = Command.new(:forward, 10)
+          c2 = Command.new(:seek, 10)
+          c1.should_not eql(c2)
+        end
+
+        it 'is aliased as ==' do
+          c1 = Command.new(:seek, 10)
+          c2 = Command.new(:seek, 10)
+          c1.should == c2
+        end
+      end
     end
   end
 end

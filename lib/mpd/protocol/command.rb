@@ -1,6 +1,8 @@
 module MPD
   module Protocol
     class Command
+      attr_reader :command, :arguments
+
       def initialize(command, *arguments)
         @command = command
         @arguments = arguments.compact
@@ -9,6 +11,11 @@ module MPD
       def to_s
         [mpdified_command, transposed].flatten.join(SPACE)
       end
+
+      def eql?(cmd)
+        self.command == cmd.command && self.arguments == cmd.arguments
+      end
+      alias_method :==, :eql?
 
       private
 
