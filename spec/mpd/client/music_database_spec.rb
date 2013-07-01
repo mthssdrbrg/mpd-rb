@@ -178,7 +178,7 @@ module MPD
         end
 
         context 'with invalid arguments' do
-          let(:response) { "ACK [2@0] {count} incorrect arguments\n" }
+          let(:response) { "ACK [2@0] {find} incorrect arguments\n" }
 
           it 'raises CommandError' do
             expect { client.find(:any, 'wrong', 'things') }.to raise_error(CommandError, /incorrect arguments/)
@@ -187,11 +187,41 @@ module MPD
         end
 
         context 'with too few arguments' do
-          let(:response) { "ACK [2@0] {count} too few arguments for \"count\"\n" }
+          let(:response) { "ACK [2@0] {find} too few arguments for \"find\"\n" }
 
           it 'raises CommandError' do
             expect { client.find('something') }.to raise_error(CommandError, /too few arguments/)
             expect { client.find }.to raise_error(CommandError, /too few arguments/)
+          end
+        end
+      end
+
+      context '#findadd' do
+        context 'with valid arguments' do
+          it_behaves_like 'a simple command', :find_add, 'findadd any "Bring Me The Horizon"', :any, 'Bring Me The Horizon'
+        end
+
+        context 'with invalid arguments' do
+          before do
+            socket.stub(:puts)
+            socket.stub(:gets).and_return("ACK [2@0] {findadd} incorrect arguments\n")
+          end
+
+          it 'raises CommandError' do
+            expect { client.find_add(:any, 'wrong', 'things') }.to raise_error(CommandError, /incorrect arguments/)
+            expect { client.find_add('not supported', 'wrong') }.to raise_error(CommandError, /incorrect arguments/)
+          end
+        end
+
+        context 'with too few arguments' do
+          before do
+            socket.stub(:puts)
+            socket.stub(:gets).and_return("ACK [2@0] {findadd} too few arguments for \"findadd\"\n")
+          end
+
+          it 'raises CommandError' do
+            expect { client.find_add('something') }.to raise_error(CommandError, /too few arguments/)
+            expect { client.find_add }.to raise_error(CommandError, /too few arguments/)
           end
         end
       end
