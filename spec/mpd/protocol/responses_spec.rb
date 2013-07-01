@@ -142,7 +142,7 @@ module MPD
               end
 
               it 'returns a list of hashes, separated by marker' do
-                response = ListResponse.new(raw, :marker).body
+                response = ListResponse.new(raw, :marker => :marker).body
                 response.should have(2).items
                 response.collect { |r| r[:marker] }.should == ['marker1', 'marker2']
               end
@@ -156,7 +156,7 @@ module MPD
               end
 
               it 'returns a list of hashes, separated by marker' do
-                response = ListResponse.new(raw, :marker).body
+                response = ListResponse.new(raw, :marker => :marker).body
                 response.should have(1).items
                 response.collect { |r| r[:marker] }.should == ['marker1']
               end

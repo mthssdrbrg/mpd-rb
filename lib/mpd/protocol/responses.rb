@@ -1,6 +1,12 @@
 module MPD
   module Protocol
-    class Response < Struct.new(:raw)
+    class Response
+
+      attr_reader :raw
+
+      def initialize(raw, options = {})
+        @raw = raw
+      end
 
       def successful?
         !failure?
@@ -46,9 +52,9 @@ module MPD
 
       attr_reader :marker
 
-      def initialize(raw, marker = :file)
-        super(raw)
-        @marker = marker
+      def initialize(raw, options = {})
+        super(raw, options)
+        @marker = options[:marker] || :file
       end
 
       def body
