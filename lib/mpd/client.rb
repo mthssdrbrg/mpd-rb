@@ -46,6 +46,7 @@ module MPD
     command :update, :response => :hash
     command :rescan, :response => :hash
     command :count, :response => :hash
+    command :find, :response => :list
 
     # Connection settings
     command :close
