@@ -40,9 +40,15 @@ module MPD
         client.kill
       end
 
-      context 'on successful command' do
+      context 'when user has priviledges to the \'kill\' command' do
         it 'returns :ok' do
           client.kill.should == :ok
+        end
+      end
+
+      context 'when user does not have priviledges to use the \'kill\' command' do
+        it 'raises CommandError' do
+          pending 'user permissions'
         end
       end
     end

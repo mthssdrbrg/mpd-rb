@@ -4,10 +4,6 @@ require 'mpd/client/client_shared'
 
 module MPD
   describe Client do
-    describe '.command' do
-      pending
-    end
-
     describe '#connect' do
       include_context 'client setup'
 
