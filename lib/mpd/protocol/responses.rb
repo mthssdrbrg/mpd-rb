@@ -46,7 +46,7 @@ module MPD
 
       attr_reader :marker
 
-      def initialize(raw, marker = :id)
+      def initialize(raw, marker = :file)
         super(raw)
         @marker = marker
       end
@@ -57,8 +57,8 @@ module MPD
 
           [].tap do |memo|
             while extracted.any? do
-              index = extracted.index { |(k, v)| k == marker }
-              memo << Hash[extracted.slice!(0, index + 1)]
+              index = extracted.rindex { |(k, v), i| k == marker }
+              memo.unshift(Hash[extracted.slice!(index, extracted.length)])
             end
           end
         else

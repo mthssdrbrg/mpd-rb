@@ -136,8 +136,8 @@ module MPD
             context 'multiple entries' do
               let :raw do
                 [
-                  "key1: hi", "key2: bye", "marker: marker1",
-                  "key1: hi2", "key2: bye2", "marker: marker2"
+                  "marker: marker1", "key2: bye", "key1: hi1",
+                  "marker: marker2", "key2: bye2", "key1: hi2"
                 ]
               end
 
@@ -151,7 +151,7 @@ module MPD
             context 'single entry' do
               let :raw do
                 [
-                  "key1: hi", "key2: bye", "marker: marker1"
+                  "marker: marker1", "key1: hi", "key2: bye"
                 ]
               end
 
@@ -173,7 +173,7 @@ module MPD
               ]
             end
 
-            it 'returns a list of hashes, separated by :id' do
+            it 'returns a list of hashes, separated by :file' do
               response = ListResponse.new(raw).body
               response.should have(2).items
               response.collect { |r| r[:id] }.should == ['18', '22']
