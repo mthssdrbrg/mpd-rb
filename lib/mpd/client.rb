@@ -48,6 +48,7 @@ module MPD
     command :count, :response => :hash
     command :find, :response => :list
     command :find_add
+    command :list, :response => :list, :marker => :album
 
     # Connection settings
     command :close

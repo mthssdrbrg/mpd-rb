@@ -225,6 +225,76 @@ module MPD
           end
         end
       end
+
+      context '#list' do
+        before do
+          socket.stub(:puts)
+          socket.stub(:gets).and_return(*response)
+        end
+
+        context 'with valid arguments' do
+          context 'without artist argument' do
+            let :response do
+              [
+                "Album: Pure Fix Mix\n",
+                "Album: Det finns inget vackert kvar i romantik\n",
+                "Album: Whenever, If Ever\n",
+                "Album: Yeezus\n",
+                "Album: House of Dreams - Single\n",
+                "Album: Know Hope\n",
+                "Album: F H : X V (False Hopes 15)\n",
+                "Album: \n",
+                "Album: PeepCode Screencasts\n",
+                "Album: The Wall (disc 1)\n",
+                "Album: The Wall (disc 2)\n",
+                "Album: The Future Is Cancelled\n",
+                "Album: The Dark Side Of The Moon {Japanese vinyl}\n",
+                "Album: if there is light, it will find you\n",
+                "OK\n"
+              ]
+            end
+
+            it 'returns a list of hashes' do
+              socket.stub(:puts).with('list album')
+              result = client.list(:album)
+              result.should have(14).items
+              result.each { |r| r.keys.should == [:album] }
+            end
+          end
+
+          context 'with optional artist argument' do
+            let(:response) do
+              [
+               "Album: Sempiternal\n",
+               "OK\n"
+              ]
+            end
+
+            it 'returns albums for given artist' do
+              socket.stub(:puts).with('list album "Bring Me The Horizon"')
+              result = client.list(:album, 'Bring Me The Horizon')
+              result.should have(1).item
+              result.first.should == {album: 'Sempiternal'}
+            end
+          end
+        end
+
+        context 'with invalid arguments' do
+          let(:response) { "ACK [2@0] {list} \"something\" is not known\n" }
+
+          it 'raises CommandError' do
+            expect { client.list(:something) }.to raise_error(CommandError, /"something" is not known/)
+          end
+        end
+
+        context 'with too few arguments' do
+          let(:response) { "ACK [2@0] {list} too few arguments for \"list\"\n" }
+
+          it 'raises CommandError' do
+            expect { client.list }.to raise_error(CommandError, /too few arguments/)
+          end
+        end
+      end
     end
   end
 end
