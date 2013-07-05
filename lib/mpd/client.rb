@@ -43,12 +43,14 @@ module MPD
     command :current_song, :response => :hash
 
     # The music database
-    command :update, :response => :hash
-    command :rescan, :response => :hash
     command :count, :response => :hash
     command :find, :response => :list
     command :find_add
     command :list, :response => :list, :marker => :album
+    command :list_all, :response => :grouped, :marker => [:file, :directory]
+    command :list_all_info, :response => :grouped, :marker => [:file, :directory]
+    command :update, :response => :hash
+    command :rescan, :response => :hash
 
     # Connection settings
     command :close
