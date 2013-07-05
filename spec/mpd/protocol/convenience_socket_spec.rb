@@ -67,10 +67,10 @@ module MPD
           context 'responses that are nil' do
             before do
               tcp_socket.stub(:puts).with('close')
+              tcp_socket.stub(:gets).and_return(nil)
             end
 
             it 'assumes everything is alright and returns an empty list' do
-              tcp_socket.stub(:gets).and_return(nil)
               convenient_socket.execute('close').should be_empty
             end
           end
@@ -104,8 +104,8 @@ module MPD
         end
 
         it 'does not close socket if socket#closed? returns true' do
-          tcp_socket.should_not_receive(:close)
           tcp_socket.stub(:closed?).and_return(true)
+          tcp_socket.should_not_receive(:close)
           convenient_socket.close
         end
       end
