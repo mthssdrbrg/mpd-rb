@@ -60,16 +60,59 @@ module MPD
       def body
         if successful?
           extracted = raw.map(&method(:extract_pair))
-
-          [].tap do |memo|
-            while extracted.any? do
-              index = extracted.rindex { |(k, v), i| k == marker }
-              memo.unshift(Hash[extracted.slice!(index, extracted.length)])
-            end
-          end
+          separate(marker, extracted) { |slice| Hash[slice] }
         else
           error
         end
+      end
+
+      private
+
+      def separate(mark, from, &transform)
+        [].tap do |memo|
+          while from.any? do
+            index = rindex_of(mark, from)
+            slice = from.slice!(index, from.length)
+            memo.unshift(transform.call(slice))
+          end
+        end
+      end
+
+      def rindex_of(mark, list)
+        list.rindex { |(k, v)| k == mark }
+      end
+    end
+
+    class GroupedResponse < ListResponse
+      def initialize(raw, options = {})
+        super
+        @group_by = options[:group_by]
+        @marker = options[:marker]
+      end
+
+      def body
+        if successful?
+          extracted = raw.map(&method(:extract_pair))
+          result = {}
+
+          unless (index = index_of(@group_by, extracted)).zero?
+            at_root = extracted.slice!(0, index)
+
+            result[EMPTY_STRING] = separate(@marker, at_root) { |slice| Hash[slice] }
+          end
+
+          separated = separate(@group_by, extracted) { |slice| slice }
+          separated.each_with_object(result) do |slice, hash|
+            key = slice.shift.last
+            hash[key] = separate(@marker, slice) { |slice| Hash[slice] }
+          end
+        end
+      end
+
+      private
+
+      def index_of(mark, list)
+        list.index { |(k, v)| k == mark }
       end
     end
   end
