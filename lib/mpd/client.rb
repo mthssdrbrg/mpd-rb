@@ -47,8 +47,8 @@ module MPD
     command :find, :response => :list
     command :find_add
     command :list, :response => :list, :marker => :album
-    command :list_all, :response => :grouped, :marker => [:file, :directory]
-    command :list_all_info, :response => :grouped, :marker => [:file, :directory]
+    command :list_all, :response => :grouped, :group_by => :directory, :marker => :file
+    command :list_all_info, :response => :grouped, :group_by => :directory, :marker => :file
     command :update, :response => :hash
     command :rescan, :response => :hash
 

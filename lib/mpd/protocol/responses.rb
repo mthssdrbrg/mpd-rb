@@ -84,10 +84,12 @@ module MPD
     end
 
     class GroupedResponse < ListResponse
+
+      attr_reader :group_by
+
       def initialize(raw, options = {})
         super
         @group_by = options[:group_by]
-        @marker = options[:marker]
       end
 
       def body
@@ -95,16 +97,16 @@ module MPD
           extracted = raw.map(&method(:extract_pair))
           result = {}
 
-          unless (index = index_of(@group_by, extracted)).zero?
+          unless (index = index_of(group_by, extracted)).zero?
             at_root = extracted.slice!(0, index)
 
-            result[EMPTY_STRING] = separate(@marker, at_root) { |slice| Hash[slice] }
+            result[EMPTY_STRING] = separate(marker, at_root) { |slice| Hash[slice] }
           end
 
-          separated = separate(@group_by, extracted) { |slice| slice }
+          separated = separate(group_by, extracted) { |slice| slice }
           separated.each_with_object(result) do |slice, hash|
             key = slice.shift.last
-            hash[key] = separate(@marker, slice) { |slice| Hash[slice] }
+            hash[key] = separate(marker, slice) { |slice| Hash[slice] }
           end
         end
       end
