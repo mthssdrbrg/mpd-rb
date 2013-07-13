@@ -30,6 +30,13 @@ module MPD
           command.to_s.should == 'move 1:4'
         end
 
+        it 'wraps arguments with whitespace in double quotes' do
+          command = Command.new(:something, 'this has white    spaces')
+          command.to_s.should == 'something "this has white    spaces"'
+          command = Command.new(:something, "this has white\tspaces")
+          command.to_s.should == "something \"this has white\tspaces\""
+        end
+
         context 'with multiple arguments' do
           it 'includes all arguments' do
             command = Command.new(:add_id, 'something-random.mp3', 10)
