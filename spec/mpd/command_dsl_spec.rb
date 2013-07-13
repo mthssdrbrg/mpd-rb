@@ -9,6 +9,8 @@ class Target < Struct.new(:connection)
   [:hash, :single_value, :list, :grouped].each do |type|
     command "with_#{type}_response".to_sym, response: type
   end
+
+  command :with_explicit_delimiter, response: :list, delimiter: :something
 end
 
 module MPD
@@ -58,6 +60,13 @@ module MPD
       context ':list' do
         it 'returns a ListResponse' do
           target.with_list_response.should be_a(Protocol::ListResponse)
+        end
+      end
+
+      context 'options for response' do
+        it 'proxies options for responses' do
+          response = target.with_explicit_delimiter
+          response.delimiter.should == :something
         end
       end
     end
