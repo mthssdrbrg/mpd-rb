@@ -1,4 +1,24 @@
+# encoding: utf-8
+
 module MPD
+  class CommandError < StandardError
+
+    attr_reader :code, :index, :command
+
+    def initialize(error)
+      error_matches = error.match(ERROR_REGEXP)
+      super(error_matches[:message])
+
+      @code = error_matches[:code].to_i
+      @index = error_matches[:index].to_i
+      @command = error_matches[:command].to_sym
+    end
+
+    private
+
+    ERROR_REGEXP = /^ACK \[(?<code>\d+)\@(?<index>\d+)\] \{(?<command>.*)\} (?<message>.+)$/.freeze
+  end
+
   module Protocol
     ERROR = /^ACK \[\d+@\d+\] \{.+\}/.freeze
     OK = /^OK/.freeze
@@ -8,21 +28,6 @@ module MPD
     SPACE = ' '.freeze
     UNDERSCORE = '_'.freeze
     EMPTY_STRING = ''.freeze
-
-    ERROR_MAPPINGS = {
-      1  => 'ACK_ERROR_NOT_LIST',
-      2  => 'ACK_ERROR_ARG',
-      3  => 'ACK_ERROR_PASSWORD',
-      4  => 'ACK_ERROR_PERMISSION',
-      5  => 'ACK_ERROR_UNKNOWN',
-      50 => 'ACK_ERROR_NO_EXIST',
-      51 => 'ACK_ERROR_PLAYLIST_MAX',
-      52 => 'ACK_ERROR_SYSTEM',
-      53 => 'ACK_ERROR_PLAYLIST_LOAD',
-      54 => 'ACK_ERROR_UPDATE_ALREADY',
-      55 => 'ACK_ERROR_PLAYER_SYNC',
-      56 => 'ACK_ERROR_EXIST'
-    }.freeze
   end
 end
 

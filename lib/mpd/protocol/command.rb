@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module MPD
   module Protocol
     class Command

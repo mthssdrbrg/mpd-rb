@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'socket'
+
 module MPD
   module Io
     class Connection

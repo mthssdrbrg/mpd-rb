@@ -1,6 +1,5 @@
 # encoding: utf-8
 require 'spec_helper'
-require 'mpd/client/client_shared'
 
 module MPD
   describe Client do

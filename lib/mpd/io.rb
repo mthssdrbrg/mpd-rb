@@ -1,8 +1,7 @@
 # encoding: utf-8
 
 module MPD
-  module Io
-  end
+  NotConnectedError = Class.new(MPDError)
 end
 
 require 'mpd/io/connection'
