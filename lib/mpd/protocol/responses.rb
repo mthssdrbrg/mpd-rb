@@ -8,19 +8,17 @@ module MPD
         @raw = raw
       end
 
-      def successful?
-        !failure?
+      def ok?
+        !error?
       end
-      alias_method :success?, :successful?
-      alias_method :ok?, :successful?
+      alias_method :success?, :ok?
 
-      def failure?
+      def error?
         raw.nil? || (raw.one? && raw.first.match(ERROR))
       end
-      alias_method :error?, :failure?
 
-      def body
-        successful? ? :ok : error
+      def decode
+        ok? ? :ok : error
       end
 
       def error
@@ -30,14 +28,10 @@ module MPD
 
     class HashResponse < Response
 
-      def body
+      def decode
         return nil if raw.empty?
 
-        if successful?
-          Hash[raw.map(&method(:extract_pair))]
-        else
-          error
-        end
+        ok? ? Hash[raw.map(&method(:extract_pair))] : error
       end
 
       private
@@ -50,9 +44,10 @@ module MPD
     end
 
     class SingleValueResponse < HashResponse
-      def body
+      def decode
         return nil if raw.empty?
-        successful? ? extract_pair(raw.first).last : error
+
+        ok? ? extract_pair(raw.first).last : error
       end
     end
 
@@ -65,8 +60,8 @@ module MPD
         @delimiter = options[:delimiter] || :file
       end
 
-      def body
-        if successful?
+      def decode
+        if ok?
           extracted = raw.map(&method(:extract_pair))
           separate(delimiter, extracted) { |slice| Hash[slice] }
         else

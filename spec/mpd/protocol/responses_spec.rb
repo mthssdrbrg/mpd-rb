@@ -7,12 +7,12 @@ module MPD
         Response.new(raw)
       end
 
-      describe '#successful?' do
+      describe '#ok?' do
         context 'when raw response is an empty list' do
           let(:raw) { [] }
 
           it 'returns true' do
-            response.successful?.should be_true
+            response.ok?.should be_true
           end
         end
 
@@ -20,23 +20,23 @@ module MPD
           let(:raw) { nil }
 
           it 'returns false' do
-            response.successful?.should be_false
+            response.ok?.should be_false
           end
         end
 
         it 'is aliased to #success?' do
           response = Response.new([])
-          response.successful?.should be_true
-          response.successful?.should == response.success?
+          response.ok?.should be_true
+          response.ok?.should == response.success?
         end
       end
 
-      describe '#failure?' do
+      describe '#error?' do
         context 'when raw response contains an error line' do
           let(:raw) { ['ACK [50@0] {command} error message'] }
 
           it 'returns true if raw response contains an error line' do
-            response.failure?.should be_true
+            response.error?.should be_true
           end
         end
 
@@ -44,23 +44,17 @@ module MPD
           let(:raw) { nil }
 
           it 'returns true if raw response is nil' do
-            response.failure?.should be_true
+            response.error?.should be_true
           end
-        end
-
-        it 'is aliased to #error?' do
-          response = Response.new(['ACK [50@0] {command} error message'])
-          response.failure?.should be_true
-          response.failure?.should == response.error?
         end
       end
 
-      describe '#body' do
+      describe '#decode' do
         context 'successful response' do
           let(:raw) { [] }
 
           it 'returns :ok' do
-            response.body.should == :ok
+            response.decode.should == :ok
           end
         end
 
@@ -68,7 +62,7 @@ module MPD
           let(:raw) { ["ACK [51@0] {command} error message"] }
 
           it 'returns a CommandError' do
-            response.body.should be_a(CommandError)
+            response.decode.should be_a(CommandError)
           end
         end
       end
@@ -97,7 +91,7 @@ module MPD
         described_class.new(raw)
       end
 
-      describe '#body' do
+      describe '#decode' do
         context 'successful response' do
           let :raw do
             [
@@ -116,7 +110,7 @@ module MPD
           end
 
           it 'returns as hash representation of the response' do
-            response.body.should == {
+            response.decode.should == {
               :file => '19-gang_starr-next_time-dsp_int.mp3',
               :last_modified => '2011-06-22T22:23:56Z',
               :time => '186',
@@ -134,8 +128,8 @@ module MPD
           context 'when raw response is an empty list' do
             let(:raw) { [] }
 
-            it 'returns nil if raw response is an empty list' do
-              response.body.should be_nil
+            it 'returns nil' do
+              response.decode.should be_nil
             end
           end
         end
@@ -144,7 +138,7 @@ module MPD
           let(:raw) { ["ACK [51@0] {command} error message"] }
 
           it 'returns a CommandError' do
-            response.body.should be_a(CommandError)
+            response.decode.should be_a(CommandError)
           end
         end
       end
@@ -155,21 +149,21 @@ module MPD
         described_class.new(raw)
       end
 
-      describe '#body' do
+      describe '#decode' do
         context 'successful response' do
           let :raw do
             ["id: 12"]
           end
 
           it 'returns a single value' do
-            response.body.should == '12'
+            response.decode.should == '12'
           end
 
           context 'when raw response is an empty list' do
             let(:raw) { [] }
 
             it 'returns nil if raw response is an empty list' do
-              response.body.should be_nil
+              response.decode.should be_nil
             end
           end
         end
@@ -178,7 +172,7 @@ module MPD
           let(:raw) { ["ACK [51@0] {command} error message"] }
 
           it 'returns a CommandError' do
-            response.body.should be_a(CommandError)
+            response.decode.should be_a(CommandError)
           end
         end
       end
@@ -189,13 +183,13 @@ module MPD
         described_class.new(raw)
       end
 
-      describe '#body' do
+      describe '#decode' do
         context 'successful response' do
           context 'when raw response is empty' do
             let(:raw) { [] }
 
             it 'returns an empty list' do
-              response.body.should == []
+              response.decode.should == []
             end
           end
 
@@ -206,7 +200,7 @@ module MPD
               end
 
               it 'returns a list with a single hash' do
-                list = response.body
+                list = response.decode
                 list.should have(1).item
                 list.first.keys.should == [:file]
               end
@@ -222,7 +216,7 @@ module MPD
               end
 
               it 'returns a list of hashes' do
-                list = response.body
+                list = response.decode
                 list.should have(3).items
                 list.each { |i| i.keys.should == [:file] }
               end
@@ -239,7 +233,7 @@ module MPD
               end
 
               it 'returns a list with a single hash' do
-                list = response.body
+                list = response.decode
                 list.should have(1).item
                 list.each { |i| i.keys.should == [:file, :id] }
               end
@@ -256,7 +250,7 @@ module MPD
               end
 
               it 'returns a list of hashes' do
-                list = response.body
+                list = response.decode
                 list.should have(2).items
                 list.each { |i| i.keys.should == [:file, :id] }
               end
@@ -274,7 +268,7 @@ module MPD
             end
 
             it 'uses :file as a separator' do
-              list = response.body
+              list = response.decode
               list.should have(2).items
               list.each { |i| i.keys.should == [:file, :id] }
             end
@@ -293,7 +287,7 @@ module MPD
             end
 
             it 'uses delimiter as separator' do
-              list = response.body
+              list = response.decode
               list.should have(2).items
               list.each { |r| r.keys.should == [:marker, :key2, :key1] }
             end
@@ -306,7 +300,7 @@ module MPD
           end
 
           it 'returns a CommandError' do
-            response.body.should be_a(CommandError)
+            response.decode.should be_a(CommandError)
           end
         end
       end
