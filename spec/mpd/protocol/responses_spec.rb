@@ -311,53 +311,5 @@ module MPD
         end
       end
     end
-
-    describe GroupedResponse do
-      describe '#body' do
-        context 'successful response' do
-          let :raw do
-            [
-              'directory: directory 1',
-              'file: file 1',
-              'title: title 1',
-              'file: file 2',
-              'title: title 2',
-              'directory: directory 2',
-              'file: file 3',
-              'directory: directory 3'
-            ]
-          end
-
-          it 'groups items by given key' do
-            response = described_class.new(raw, :group_by => :directory, :delimiter => :file)
-            response.body.should == {
-              'directory 1' => [{file: 'file 1', title: 'title 1'}, {file: 'file 2', title: 'title 2'}],
-              'directory 2' => [{file: 'file 3'}],
-              'directory 3' => []
-            }
-          end
-
-          context 'items without any preceding top-level key' do
-            let :raw do
-              [
-                'file: file 1',
-                'title: title 1',
-                'directory: directory 1',
-                'file: file 2',
-                'title: title 2',
-              ]
-            end
-
-            it 'groups them under \'\'' do
-              response = described_class.new(raw, :group_by => :directory, :delimiter => :file)
-              response.body.should == {
-                '' => [{file: 'file 1', title: 'title 1'}],
-                'directory 1' => [{file: 'file 2', title: 'title 2'}]
-              }
-            end
-          end
-        end
-      end
-    end
   end
 end

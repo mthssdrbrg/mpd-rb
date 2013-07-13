@@ -60,12 +60,6 @@ module MPD
           target.with_list_response.should be_a(Protocol::ListResponse)
         end
       end
-
-      context ':grouped' do
-        it 'returns a GroupedResponse' do
-          target.with_grouped_response.should be_a(Protocol::GroupedResponse)
-        end
-      end
     end
   end
 end

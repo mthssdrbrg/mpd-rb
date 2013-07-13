@@ -4,6 +4,16 @@ require 'mpd/client/client_shared'
 
 module MPD
   describe Client do
+    shared_context 'client setup' do
+      let :client do
+        MPD::Client.new(connection: connection)
+      end
+
+      let :connection do
+        double(:connection, execute: [], connect: nil)
+      end
+    end
+
     describe '#connect' do
       include_context 'client setup'
 

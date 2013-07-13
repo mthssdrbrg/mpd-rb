@@ -90,40 +90,5 @@ module MPD
         list.rindex { |(k, v)| k == delim }
       end
     end
-
-    class GroupedResponse < ListResponse
-
-      attr_reader :group_by
-
-      def initialize(raw, options = {})
-        super
-        @group_by = options[:group_by]
-      end
-
-      def body
-        if successful?
-          extracted = raw.map(&method(:extract_pair))
-          result = {}
-
-          unless (index = index_of(group_by, extracted)).zero?
-            at_root = extracted.slice!(0, index)
-
-            result[EMPTY_STRING] = separate(delimiter, at_root) { |slice| Hash[slice] }
-          end
-
-          separated = separate(group_by, extracted) { |slice| slice }
-          separated.each_with_object(result) do |slice, hash|
-            key = slice.shift.last
-            hash[key] = separate(delimiter, slice) { |slice| Hash[slice] }
-          end
-        end
-      end
-
-      private
-
-      def index_of(delim, list)
-        list.index { |(k, v)| k == delim }
-      end
-    end
   end
 end
