@@ -8,7 +8,7 @@ module MPD
     end
 
     let :client do
-      mock(:client)
+      double(:client)
     end
 
     describe '#next' do

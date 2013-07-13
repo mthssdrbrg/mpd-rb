@@ -4,7 +4,7 @@ module MPD
 
       attr_reader :raw
 
-      def initialize(raw, options = {})
+      def initialize(raw = [], options = {})
         @raw = raw
       end
 
@@ -12,6 +12,7 @@ module MPD
         !failure?
       end
       alias_method :success?, :successful?
+      alias_method :ok?, :successful?
 
       def failure?
         raw.nil? || (raw.one? && raw.first.match(ERROR))
@@ -48,19 +49,26 @@ module MPD
       end
     end
 
+    class SingleValueResponse < HashResponse
+      def body
+        return nil if raw.empty?
+        successful? ? extract_pair(raw.first).last : error
+      end
+    end
+
     class ListResponse < HashResponse
 
-      attr_reader :marker
+      attr_reader :delimiter
 
       def initialize(raw, options = {})
         super(raw, options)
-        @marker = options[:marker] || :file
+        @delimiter = options[:delimiter] || :file
       end
 
       def body
         if successful?
           extracted = raw.map(&method(:extract_pair))
-          separate(marker, extracted) { |slice| Hash[slice] }
+          separate(delimiter, extracted) { |slice| Hash[slice] }
         else
           error
         end
@@ -68,18 +76,18 @@ module MPD
 
       private
 
-      def separate(mark, from, &transform)
+      def separate(delim, from, &transform)
         [].tap do |memo|
           while from.any? do
-            index = rindex_of(mark, from)
+            index = rindex_of(delim, from)
             slice = from.slice!(index, from.length)
             memo.unshift(transform.call(slice))
           end
         end
       end
 
-      def rindex_of(mark, list)
-        list.rindex { |(k, v)| k == mark }
+      def rindex_of(delim, list)
+        list.rindex { |(k, v)| k == delim }
       end
     end
 
@@ -100,21 +108,21 @@ module MPD
           unless (index = index_of(group_by, extracted)).zero?
             at_root = extracted.slice!(0, index)
 
-            result[EMPTY_STRING] = separate(marker, at_root) { |slice| Hash[slice] }
+            result[EMPTY_STRING] = separate(delimiter, at_root) { |slice| Hash[slice] }
           end
 
           separated = separate(group_by, extracted) { |slice| slice }
           separated.each_with_object(result) do |slice, hash|
             key = slice.shift.last
-            hash[key] = separate(marker, slice) { |slice| Hash[slice] }
+            hash[key] = separate(delimiter, slice) { |slice| Hash[slice] }
           end
         end
       end
 
       private
 
-      def index_of(mark, list)
-        list.index { |(k, v)| k == mark }
+      def index_of(delim, list)
+        list.index { |(k, v)| k == delim }
       end
     end
   end

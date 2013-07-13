@@ -1,4 +1,5 @@
 module MPD
+  NotConnectedError = Class.new(IOError)
   class CommandError < StandardError
 
     attr_reader :code, :index, :command
@@ -22,3 +23,4 @@ require 'mpd/protocol'
 require 'mpd/command_dsl'
 require 'mpd/client'
 require 'mpd/player'
+require 'mpd/io'
