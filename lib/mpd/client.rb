@@ -15,7 +15,7 @@ module MPD
 
     # The current playlist
     command :add
-    command :add_id, :response => :hash
+    command :add_id, :response => :single_value
     command :clear
     command :delete
     command :delete_id
@@ -46,48 +46,36 @@ module MPD
     command :count, :response => :hash
     command :find, :response => :list
     command :find_add
-    command :list, :response => :list, :marker => :album
-    command :list_all, :response => :grouped, :group_by => :directory, :marker => :file
-    command :list_all_info, :response => :grouped, :group_by => :directory, :marker => :file
-    command :update, :response => :hash
-    command :rescan, :response => :hash
+    command :list, :response => :list, :delimiter => :album
+    command :list_all, :response => :grouped, :group_by => :directory, :delimiter => :file
+    command :list_all_info, :response => :grouped, :group_by => :directory, :delimiter => :file
+    command :update, :response => :single_value
+    command :rescan, :response => :single_value
 
     # Connection settings
     command :close
     command :kill
     command :ping
 
-    attr_reader :protocol_version
+    attr_reader :connection
 
     def initialize(options = {})
       @host = options[:host] || 'localhost'
       @port = options[:port] || 6600
-      @socket_impl = options[:socket_impl] || TCPSocket
-      @connected = false
+      @connection = options[:connection] || MPD::Io::Connection.new
     end
 
     def connect
-      unless @connected
-        tcp_socket = @socket_impl.new(@host, @port)
-        @socket = Protocol::ConvenienceSocket.new(tcp_socket)
-        @protocol_version = @socket.handshake
-        @connected = true
+      unless @connection.connected?
+        @connection.connect(@host, @port)
       end
-
-      self
     end
 
     def disconnect
-      if @connected
+      if @connection.connected?
         self.close
-        @socket.close
+        @connection.close
       end
-    end
-
-    private
-
-    def socket
-      @socket
     end
   end
 end

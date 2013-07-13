@@ -7,36 +7,35 @@ module MPD
     describe '#connect' do
       include_context 'client setup'
 
-      it 'defaults to localhost:6600' do
-        socket_impl.should_receive(:new).with('localhost', 6600).and_return(socket)
-        client = MPD::Client.new(socket_impl: socket_impl)
-        client.connect
+      before do
+        connection.stub(:connected?).and_return(false)
       end
 
-      it 'uses explicit host and port' do
-        socket_impl.should_receive(:new).with('example.com', 4567).and_return(socket)
-        client = MPD::Client.new(host: 'example.com', port: 4567, socket_impl: socket_impl)
-        client.connect
+      context 'when not given any host or port' do
+        it 'tells connection to connect to localhost:6600' do
+          client = described_class.new(connection: connection)
+          client.connect
+          expect(connection).to have_received(:connect).with('localhost', 6600)
+        end
       end
 
-      it 'performs initial handshake' do
-        socket.should_receive(:gets)
-        client.connect
+      context 'when given explicit host and port' do
+        it 'tells connection to connect to given host:port' do
+          client = described_class.new(host: 'example.com', port: 4567, connection: connection)
+          client.connect
+          expect(connection).to have_received(:connect).with('example.com', 4567)
+        end
       end
 
-      it 'sets protocol version' do
-        client.connect
-        client.protocol_version.should == '0.17.0'
-      end
+      context 'when already connected' do
+        it 'does not attempt to connect again' do
+          client = described_class.new(connection: connection)
+          client.connect
+          connection.stub(:connected?).and_return(true)
+          client.connect
 
-      it 'returns self' do
-        client.connect.should == client
-      end
-
-      it 'connects once' do
-        socket_impl.should_receive(:new).once
-        client.connect
-        client.connect
+          expect(connection).to have_received(:connect).once
+        end
       end
     end
 
@@ -44,33 +43,35 @@ module MPD
       include_context 'client setup'
 
       before do
-        socket.stub(:puts).with('close')
-        socket.stub(:closed?).and_return(false)
-        socket.stub(:close)
+        connection.stub(:close)
       end
 
-      it 'sends \'close\' command to socket' do
-        client.connect
+      context 'when connected' do
+        before do
+          connection.stub(:connected?).and_return(true)
+          client.connect
+        end
 
-        socket.should_receive(:puts).with('close')
-        socket.stub(:gets)
+        it 'sends \'close\' command' do
+          client.disconnect
+          expect(connection).to have_received(:execute).with(Protocol::Command.new(:close))
+        end
 
-        client.disconnect
+        it 'closes connection' do
+          client.disconnect
+          expect(connection).to have_received(:close)
+        end
       end
 
-      it 'closes the socket' do
-        client.connect
+      context 'when not connected' do
+        it 'does nothing' do
+          connection.should_receive(:connected?).and_return(false)
 
-        socket.should_receive(:close)
-        client.disconnect
-      end
+          client.disconnect
 
-      it 'does nothing if not connected' do
-        socket.should_not_receive(:close)
-        socket.should_not_receive(:puts)
-        socket.should_not_receive(:gets)
-
-        client.disconnect
+          expect(connection).to_not have_received(:execute)
+          expect(connection).to_not have_received(:close)
+        end
       end
     end
   end

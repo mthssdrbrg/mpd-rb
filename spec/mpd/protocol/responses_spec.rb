@@ -150,6 +150,40 @@ module MPD
       end
     end
 
+    describe SingleValueResponse do
+      let :response do
+        described_class.new(raw)
+      end
+
+      describe '#body' do
+        context 'successful response' do
+          let :raw do
+            ["id: 12"]
+          end
+
+          it 'returns a single value' do
+            response.body.should == '12'
+          end
+
+          context 'when raw response is an empty list' do
+            let(:raw) { [] }
+
+            it 'returns nil if raw response is an empty list' do
+              response.body.should be_nil
+            end
+          end
+        end
+
+        context 'erroneous response' do
+          let(:raw) { ["ACK [51@0] {command} error message"] }
+
+          it 'returns a CommandError' do
+            response.body.should be_a(CommandError)
+          end
+        end
+      end
+    end
+
     describe ListResponse do
       let :response do
         described_class.new(raw)
@@ -246,7 +280,7 @@ module MPD
             end
           end
 
-          context 'when given explicit marker' do
+          context 'when given explicit delimiter' do
             let :raw do
               [
                 "marker: marker1\n", "key2: bye\n", "key1: hi1\n",
@@ -255,10 +289,10 @@ module MPD
             end
 
             let :response do
-              ListResponse.new(raw, :marker => :marker)
+              ListResponse.new(raw, :delimiter => :marker)
             end
 
-            it 'uses marker as separator' do
+            it 'uses delimiter as separator' do
               list = response.body
               list.should have(2).items
               list.each { |r| r.keys.should == [:marker, :key2, :key1] }
@@ -295,7 +329,7 @@ module MPD
           end
 
           it 'groups items by given key' do
-            response = described_class.new(raw, :group_by => :directory, :marker => :file)
+            response = described_class.new(raw, :group_by => :directory, :delimiter => :file)
             response.body.should == {
               'directory 1' => [{file: 'file 1', title: 'title 1'}, {file: 'file 2', title: 'title 2'}],
               'directory 2' => [{file: 'file 3'}],
@@ -315,7 +349,7 @@ module MPD
             end
 
             it 'groups them under \'\'' do
-              response = described_class.new(raw, :group_by => :directory, :marker => :file)
+              response = described_class.new(raw, :group_by => :directory, :delimiter => :file)
               response.body.should == {
                 '' => [{file: 'file 1', title: 'title 1'}],
                 'directory 1' => [{file: 'file 2', title: 'title 2'}]
