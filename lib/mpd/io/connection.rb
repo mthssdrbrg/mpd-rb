@@ -31,10 +31,10 @@ module MPD
 
         @socket.each_with_object([]) do |line, memo|
           if footer?(line)
-            break memo
+            return memo
           elsif error?(line)
             memo << line.chomp
-            break memo
+            return memo
           else
             memo << line.chomp
           end
