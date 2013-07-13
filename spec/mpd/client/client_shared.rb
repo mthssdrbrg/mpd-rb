@@ -2,10 +2,10 @@
 
 shared_context 'client setup' do
   let :client do
-    MPD::Client.new(socket_class: socket_class)
+    MPD::Client.new(socket_impl: socket_impl)
   end
 
-  let :socket_class do
+  let :socket_impl do
     mock(new: socket)
   end
 

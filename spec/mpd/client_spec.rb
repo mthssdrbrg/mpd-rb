@@ -8,14 +8,14 @@ module MPD
       include_context 'client setup'
 
       it 'defaults to localhost:6600' do
-        socket_class.should_receive(:new).with('localhost', 6600).and_return(socket)
-        client = MPD::Client.new(socket_class: socket_class)
+        socket_impl.should_receive(:new).with('localhost', 6600).and_return(socket)
+        client = MPD::Client.new(socket_impl: socket_impl)
         client.connect
       end
 
       it 'uses explicit host and port' do
-        socket_class.should_receive(:new).with('example.com', 4567).and_return(socket)
-        client = MPD::Client.new(host: 'example.com', port: 4567, socket_class: socket_class)
+        socket_impl.should_receive(:new).with('example.com', 4567).and_return(socket)
+        client = MPD::Client.new(host: 'example.com', port: 4567, socket_impl: socket_impl)
         client.connect
       end
 
@@ -34,7 +34,7 @@ module MPD
       end
 
       it 'connects once' do
-        socket_class.should_receive(:new).once
+        socket_impl.should_receive(:new).once
         client.connect
         client.connect
       end

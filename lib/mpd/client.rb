@@ -62,13 +62,13 @@ module MPD
     def initialize(options = {})
       @host = options[:host] || 'localhost'
       @port = options[:port] || 6600
-      @socket_class = options[:socket_class] || TCPSocket
+      @socket_impl = options[:socket_impl] || TCPSocket
       @connected = false
     end
 
     def connect
       unless @connected
-        tcp_socket = @socket_class.new(@host, @port)
+        tcp_socket = @socket_impl.new(@host, @port)
         @socket = Protocol::ConvenienceSocket.new(tcp_socket)
         @protocol_version = @socket.handshake
         @connected = true
